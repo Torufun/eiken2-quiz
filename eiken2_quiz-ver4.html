@@ -1,0 +1,2985 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英検2級 クイズ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --card: #1e1e24;
+    --border: #2a2a35;
+    --accent: #4ade80;
+    --accent2: #818cf8;
+    --warn: #f59e0b;
+    --danger: #f87171;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  /* Header */
+  header {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .stats {
+    display: flex;
+    gap: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+  }
+  .stat { color: var(--muted); }
+  .stat span { color: var(--text); font-weight: 700; }
+
+  /* Mode Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 720px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    font-weight: 700;
+  }
+  .tab.active {
+    background: var(--card);
+    color: var(--text);
+  }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* Progress Bar */
+  .progress-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 20px;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+
+  /* Card */
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .badge.idiom { background: rgba(129,140,248,.15); color: var(--accent2); border: 1px solid rgba(129,140,248,.3); }
+  .badge.vocab { background: rgba(74,222,128,.15); color: var(--accent); border: 1px solid rgba(74,222,128,.3); }
+
+  .question-text {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+  .blank { 
+    display: inline-block;
+    background: rgba(129,140,248,.2);
+    border-bottom: 2px solid var(--accent2);
+    min-width: 120px;
+    height: 28px;
+    vertical-align: bottom;
+    border-radius: 4px 4px 0 0;
+    text-align: center;
+    font-style: italic;
+    color: var(--accent2);
+    padding: 0 8px;
+  }
+  .question-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* Choices */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .choice-btn {
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 18px;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--accent2);
+    background: rgba(129,140,248,.08);
+    transform: translateY(-1px);
+  }
+  .choice-btn:active:not(:disabled) { transform: translateY(0); }
+  .choice-btn.correct {
+    border-color: var(--accent);
+    background: rgba(74,222,128,.12);
+    color: var(--accent);
+  }
+  .choice-btn.correct .num { color: var(--accent); }
+  .choice-btn.wrong {
+    border-color: var(--danger);
+    background: rgba(248,113,113,.1);
+    color: var(--danger);
+  }
+  .choice-btn.wrong .num { color: var(--danger); }
+  .choice-btn:disabled { cursor: default; }
+
+  /* Explanation */
+  /* Timer selector */
+  .timer-selector {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .timer-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-right: 2px;
+  }
+  .timer-btn {
+    flex: 1;
+    padding: 6px 4px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .timer-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .timer-btn.active {
+    border-color: var(--accent2);
+    background: rgba(129,140,248,.12);
+    color: var(--accent2);
+  }
+
+  /* Timer */
+  .timer-wrap {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .timer-ring {
+    position: relative; width: 44px; height: 44px; flex-shrink: 0;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .timer-ring circle.bg {
+    fill: none; stroke: var(--border); stroke-width: 4;
+  }
+  .timer-ring circle.progress {
+    fill: none; stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 113;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke .3s;
+  }
+  .timer-num {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px; font-weight: 700;
+  }
+  .timer-bar-wrap {
+    flex: 1; height: 6px; background: var(--border);
+    border-radius: 3px; overflow: hidden;
+  }
+  .timer-bar {
+    height: 100%; border-radius: 3px;
+    background: var(--accent);
+    transition: width 1s linear, background .3s;
+    width: 100%;
+  }
+
+  .explanation {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 1.8;
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .explanation .answer { color: var(--accent); font-weight: 700; font-size: 16px; }
+  .explanation .meaning { color: var(--text); margin-top: 4px; }
+  .explanation .example { color: var(--muted); margin-top: 6px; font-style: italic; font-size: 13px; }
+
+  /* Nav Buttons */
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 16px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #000;
+  }
+  .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent2); }
+  .btn:disabled { opacity: .4; cursor: default; transform: none !important; }
+
+  /* Loading Spinner */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px;
+    gap: 16px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Score Summary */
+  .summary {
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+    padding: 40px 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .summary h2 { font-size: 28px; margin-bottom: 8px; }
+  .score-big {
+    font-family: 'Space Mono', monospace;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin: 16px 0;
+  }
+  .score-detail { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .score-item {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .score-item .label { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 4px; }
+  .score-item .value { font-size: 24px; font-weight: 700; }
+  .score-item.idiom .value { color: var(--accent2); }
+  .score-item.vocab .value { color: var(--accent); }
+  .score-item.correct-s .value { color: var(--accent); }
+  .score-item.wrong-s .value { color: var(--danger); }
+
+  /* Error */
+  .error-box {
+    background: rgba(248,113,113,.1);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: var(--danger);
+    font-size: 14px;
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+  }
+
+  /* Review panel */
+  .review-panel {
+    width: 100%;
+    max-width: 720px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .review-panel.show { display: block; }
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(248,113,113,.08);
+    border-bottom: 1px solid var(--border);
+  }
+  .review-header h3 {
+    font-size: 14px;
+    font-family: 'Space Mono', monospace;
+    color: var(--danger);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .review-count { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--danger); }
+  .review-actions { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .review-actions .btn { flex: none; padding: 8px 16px; font-size: 13px; }
+  .review-list { max-height: 380px; overflow-y: auto; }
+  .review-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .review-item:last-child { border-bottom: none; }
+  .review-item:hover { background: rgba(255,255,255,.03); }
+  .review-item-left { flex: 1; min-width: 0; }
+  .review-item-word { font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 3px; }
+  .review-item-meaning { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .review-item-ex { font-size: 12px; color: var(--muted); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .review-item-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; min-width: 60px; }
+  .review-item-badge { font-size: 10px; font-family: 'Space Mono', monospace; padding: 2px 7px; border-radius: 10px; text-transform: uppercase; }
+  .review-item-badge.idiom { background: rgba(129,140,248,.15); color: var(--accent2); border: 1px solid rgba(129,140,248,.3); }
+  .review-item-badge.vocab { background: rgba(74,222,128,.15); color: var(--accent); border: 1px solid rgba(74,222,128,.3); }
+  .miss-count { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--danger); }
+  .remove-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 2px 4px; line-height: 1; transition: color .15s; }
+  .remove-btn:hover { color: var(--danger); }
+  .review-mode-banner {
+    width: 100%; max-width: 720px;
+    background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3);
+    border-radius: 10px; padding: 10px 16px; font-size: 13px; color: var(--danger);
+    display: none; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; font-family: 'Space Mono', monospace;
+  }
+  .review-mode-banner.show { display: flex; }
+  .review-mode-banner button {
+    background: none; border: 1px solid var(--danger); color: var(--danger);
+    border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer; font-family: 'Space Mono', monospace;
+  }
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 20px; font-size: 13px; color: var(--text);
+    transition: transform .3s ease; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Lesson complete screen */
+  .lesson-complete {
+    width: 100%; max-width: 720px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 36px 32px;
+    text-align: center; display: none; position: relative; overflow: hidden;
+  }
+  .lesson-complete::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+  }
+  .lesson-complete.show { display: block; }
+  .lc-lesson-num {
+    font-family: 'Space Mono', monospace; font-size: 12px;
+    color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .lc-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+  .lc-range { font-size: 13px; color: var(--muted); margin-bottom: 20px; font-family: 'Space Mono', monospace; }
+  .lc-range strong { color: var(--text); }
+  .lc-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;
+  }
+  .lc-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 8px;
+  }
+  .lc-stat .lcs-label { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 4px; }
+  .lc-stat .lcs-val { font-size: 28px; font-weight: 700; font-family: 'Space Mono', monospace; }
+  .lc-stat.c-ok .lcs-val { color: var(--accent); }
+  .lc-stat.c-ng .lcs-val { color: var(--danger); }
+  .lc-stat.c-rt .lcs-val { color: var(--accent2); }
+  .lc-prog-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+  .lc-prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width .6s ease; }
+  @media (max-width: 480px) {
+    .choices { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+    .question-text { font-size: 17px; }
+    .score-grid { grid-template-columns: 1fr 1fr; }
+    .review-item-ex { display: none; }
+  }
+
+  /* ===== LESSON MAP ===== */
+  .map-panel {
+    width: 100%; max-width: 720px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    margin-bottom: 16px; display: none;
+  }
+  .map-panel.show { display: block; }
+  .map-header {
+    padding: 16px 20px; background: rgba(129,140,248,.08);
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .map-header h3 {
+    font-family: 'Space Mono', monospace; font-size: 13px;
+    color: var(--accent2); letter-spacing: 1px; text-transform: uppercase;
+  }
+  .map-close-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer;
+    font-family: 'Space Mono', monospace; transition: all .15s;
+  }
+  .map-close-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .map-legend {
+    display: flex; gap: 16px; padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .map-legend span { display: flex; align-items: center; gap: 5px; }
+  .map-legend i {
+    display: inline-block; width: 12px; height: 12px; border-radius: 3px;
+  }
+  .map-progress-bar {
+    height: 4px; background: var(--border); margin: 0 20px 12px;
+    border-radius: 2px; overflow: hidden;
+  }
+  .map-progress-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width .5s ease;
+  }
+  .map-progress-label {
+    font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted);
+    padding: 0 20px 8px; display: flex; justify-content: space-between;
+  }
+  .map-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+    padding: 4px 16px 16px;
+  }
+  .map-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700;
+    cursor: default; position: relative; transition: transform .15s;
+    border: 1.5px solid transparent;
+  }
+  .map-cell:hover { transform: scale(1.12); z-index: 2; }
+  .map-cell.done {
+    background: linear-gradient(135deg, rgba(74,222,128,.22), rgba(52,211,153,.12));
+    border-color: rgba(74,222,128,.5);
+    color: var(--accent);
+    overflow: hidden;
+  }
+  .map-cell.done .cell-num {
+    font-size: 8px; opacity: .7; line-height: 1;
+    position: absolute; bottom: 3px; left: 0; right: 0; text-align: center;
+  }
+  .map-cell.done .cell-stamp {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%;
+  }
+  .map-cell.done .cell-stamp svg {
+    width: 62%; height: 62%;
+    filter: drop-shadow(0 1px 3px rgba(74,222,128,.6));
+    animation: stamp-pop .35s cubic-bezier(.17,.67,.35,1.4) both;
+  }
+  .map-cell.current {
+    background: rgba(129,140,248,.25); border-color: var(--accent2);
+    color: var(--accent2); box-shadow: 0 0 8px rgba(129,140,248,.35);
+    animation: pulse-cell 1.8s ease-in-out infinite;
+  }
+  .map-cell.current .cell-num {
+    font-size: 9px; font-weight: 700;
+  }
+  .map-cell.locked {
+    background: rgba(255,255,255,.03); border-color: var(--border);
+    color: var(--muted);
+  }
+  @keyframes pulse-cell {
+    0%,100% { box-shadow: 0 0 6px rgba(129,140,248,.3); }
+    50%      { box-shadow: 0 0 14px rgba(129,140,248,.6); }
+  }
+  @keyframes stamp-pop {
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    70%  { transform: scale(1.15) rotate(5deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .map-stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    padding: 0 16px 16px;
+  }
+  .map-stat-box {
+    background: var(--surface); border-radius: 8px; padding: 10px 8px;
+    text-align: center; border: 1px solid var(--border);
+  }
+  .map-stat-box .msb-label {
+    font-family: 'Space Mono', monospace; font-size: 9px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: 4px;
+  }
+  .map-stat-box .msb-val {
+    font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+  }
+  .map-stat-box.s-done .msb-val { color: var(--accent); }
+  .map-stat-box.s-left .msb-val { color: var(--accent2); }
+  .map-stat-box.s-total .msb-val { color: var(--muted); }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">英検2級 QUIZ</div>
+  <div class="stats">
+    <div class="stat">問題数 <span id="totalCount">0</span></div>
+    <div class="stat">正解 <span id="correctCount">0</span></div>
+    <div class="stat">正答率 <span id="accuracy">—</span></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="setMode('mix')">🔀 ミックス</button>
+  <button class="tab" onclick="setMode('idiom')">📚 イディオム</button>
+  <button class="tab" onclick="setMode('vocab')">📖 単語</button>
+  <button class="tab" onclick="showMapPanel()" id="mapTab">🗺 進捗マップ</button>
+  <button class="tab" onclick="showReviewPanel()" id="reviewTab">❌ 復習 <span id="reviewTabCount" style="display:none;background:var(--danger);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;">0</span></button>
+</div>
+
+<div class="timer-selector" id="timerSelector">
+  <span class="timer-label">⏱ 制限時間</span>
+  <button class="timer-btn active" id="tbtn10" onclick="setTimerSecs(10)">10秒<span style="display:block;font-size:10px;opacity:0.7;font-weight:400;">上級</span></button>
+  <button class="timer-btn" id="tbtn15" onclick="setTimerSecs(15)">15秒<span style="display:block;font-size:10px;opacity:0.7;font-weight:400;">中級</span></button>
+  <button class="timer-btn" id="tbtn20" onclick="setTimerSecs(20)">20秒<span style="display:block;font-size:10px;opacity:0.7;font-weight:400;">初級</span></button>
+  <button class="timer-btn" id="tbtnOff" onclick="setTimerSecs(0)">なし</button>
+</div>
+
+<div class="review-mode-banner" id="reviewBanner">
+  <span>📝 復習モード — 間違えた問題のみ出題中</span>
+  <button onclick="exitReviewMode()">通常モードに戻る ✕</button>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span id="progressLabel">Q1 / ∞</span>
+    <span id="streakLabel">🔥 連続正解: <b id="streak">0</b></span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+</div>
+
+<div id="mainArea" style="width:100%;max-width:720px;"></div>
+
+<div class="nav-row">
+  <button class="btn btn-secondary" id="skipBtn" onclick="generateQuestion()">スキップ →</button>
+  <button class="btn btn-primary" id="nextBtn" onclick="generateQuestion()" disabled>次の問題 →</button>
+</div>
+
+
+<!-- レッスンマップパネル -->
+<div class="map-panel" id="mapPanel">
+  <div class="map-header">
+    <h3>🗺 レッスンマップ — 全75レッスン</h3>
+    <button class="map-close-btn" onclick="closeMapPanel()">閉じる ✕</button>
+  </div>
+  <div class="map-stats-row">
+    <div class="map-stat-box s-done">
+      <div class="msb-label">完了</div>
+      <div class="msb-val" id="mapDone">0</div>
+    </div>
+    <div class="map-stat-box s-left">
+      <div class="msb-label">残り</div>
+      <div class="msb-val" id="mapLeft">75</div>
+    </div>
+    <div class="map-stat-box s-total">
+      <div class="msb-label">全体</div>
+      <div class="msb-val">75</div>
+    </div>
+  </div>
+  <div class="map-progress-label">
+    <span id="mapPctLabel">0% 完了</span>
+    <span>1500問 / 75レッスン</span>
+  </div>
+  <div class="map-progress-bar">
+    <div class="map-progress-fill" id="mapProgressFill" style="width:0%"></div>
+  </div>
+  <div class="map-legend">
+    <span><svg viewBox="0 0 24 24" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;" fill="#4ade80"><path d="M12 2l2.9 6.26L22 9.27l-5 5.14 1.18 7.24L12 18.3l-6.18 3.35L7 14.41 2 9.27l7.1-1.01L12 2z"/></svg>完了</span>
+    <span><i style="background:rgba(129,140,248,.3);border:1.5px solid var(--accent2);"></i>現在</span>
+    <span><i style="background:rgba(255,255,255,.03);border:1.5px solid var(--border);"></i>未着手</span>
+  </div>
+  <div class="map-grid" id="mapGrid"></div>
+</div>
+
+<!-- 復習パネル -->
+<div class="review-panel" id="reviewPanel">
+  <div class="review-header">
+    <h3>❌ 間違えた問題</h3>
+    <span class="review-count"><span id="reviewPanelCount">0</span> 問</span>
+  </div>
+  <div class="review-actions">
+    <button class="btn btn-primary" onclick="startReviewMode()" id="startReviewBtn">🔁 この問題を復習する</button>
+    <button class="btn btn-secondary" onclick="clearReviewList()">🗑 リストをクリア</button>
+    <button class="btn btn-secondary" onclick="closeReviewPanel()">閉じる ✕</button>
+  </div>
+  <div class="review-list" id="reviewList"></div>
+</div>
+
+<div id="summaryArea"></div>
+
+<div class="lesson-complete" id="lessonComplete">
+  <div class="lc-lesson-num" id="lcNum">LESSON 1</div>
+  <div class="lc-title">レッスン完了！ 🎉</div>
+  <div class="lc-range" id="lcRange">出題範囲: <strong></strong></div>
+  <div class="lc-stats">
+    <div class="lc-stat c-ok"><div class="lcs-label">正解</div><div class="lcs-val" id="lcOk">0</div></div>
+    <div class="lc-stat c-ng"><div class="lcs-label">不正解</div><div class="lcs-val" id="lcNg">0</div></div>
+    <div class="lc-stat c-rt"><div class="lcs-label">正答率</div><div class="lcs-val" id="lcRt">—</div></div>
+  </div>
+  <div class="lc-prog-bar"><div class="lc-prog-fill" id="lcFill" style="width:0%"></div></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-primary" id="lcNextBtn" style="flex:1;max-width:260px;">次のレッスンへ →</button>
+    <button class="btn btn-secondary" onclick="restartLesson()" style="flex:1;max-width:150px;">やり直す</button>
+  </div>
+  <div style="margin-top:14px;">
+    <button class="btn btn-secondary" onclick="showReviewPanel()" style="font-size:13px;padding:8px 16px;">
+      ❌ 間違いを復習する <span id="lcRevCount"></span>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+const IDIOMS_EIKEN2 = [
+  // ===== 英検2級頻出・試験出題済み =====
+  {e:"in search of",j:"〜を求めて",ex:"Clara went to the bookstore ( ) a novel she had heard about."},
+  {e:"safe and sound",j:"無事に",ex:"He came home dirty but otherwise ( )."},
+  {e:"for the time being",j:"当面は、今のところ",ex:"She wants to work here ( ), but hopes to find a job in marketing."},
+  {e:"more or less",j:"だいたい、ほぼ",ex:"The two brothers were ( ) the same size when they were children."},
+  {e:"take pains",j:"苦労する、努力する",ex:"I ( ) to study all the vocabulary every night."},
+  {e:"live on",j:"〜を頼りに生きる、〜で生活する",ex:"They could barely ( ) the money they had left."},
+  {e:"take a nap",j:"昼寝をする",ex:"I didn't sleep well, so I think I'll ( )."},
+  {e:"as far as",j:"〜する限り（知る限り）",ex:"( ) I know, most people are planning to attend."},
+  {e:"in this way",j:"このようにして",ex:"( ), the program supports eco-friendly products."},
+  {e:"free of charge",j:"無料で",ex:"It's ( ). You can visit whenever you want."},
+  {e:"a number of",j:"多くの〜",ex:"There are ( ) good reasons for studying a foreign language."},
+  {e:"goes off",j:"（アラームが）鳴る、爆発する",ex:"The security alarm ( ) in the middle of the night."},
+  {e:"identical to",j:"〜と全く同じ",ex:"The two cars looked ( ) each other."},
+  {e:"rather than",j:"〜よりも",ex:"Review your notes ( ) relying only on the textbook."},
+  {e:"feed on",j:"〜を食べる、〜を常食にする",ex:"What do those birds ( )? They seem to eat insects."},
+  {e:"on the other hand",j:"一方で",ex:"( ), there are other types of inventions created by chance."},
+  {e:"for the sake of",j:"〜のために",ex:"He did everything ( ) his family."},
+  {e:"come up with",j:"〜を思いつく、考え出す",ex:"I'll ( ) a creative solution to the problem."},
+  {e:"take part in",j:"〜に参加する",ex:"Everyone is welcome to ( ) the event."},
+  {e:"make use of",j:"〜を利用する",ex:"We should ( ) every opportunity to practice English."},
+  {e:"look forward to",j:"〜を楽しみにする",ex:"I'm looking forward to ( ) you at the party.",},
+  {e:"get rid of",j:"〜を取り除く、処分する",ex:"We need to ( ) all this old furniture."},
+  {e:"keep in touch",j:"連絡を取り続ける",ex:"Let's ( ) even after you move."},
+  {e:"carry out",j:"〜を実行する、遂行する",ex:"The team will ( ) the plan next week."},
+  {e:"break down",j:"故障する、崩壊する",ex:"The car began to ( ) on the way to the airport."},
+  {e:"take advantage of",j:"〜を利用する、〜につけ込む",ex:"Don't ( ) people's kindness."},
+  {e:"put off",j:"〜を延期する",ex:"We had to ( ) the meeting until next week."},
+  {e:"run out of",j:"〜を使い果たす",ex:"We ran out of time before we could ( )."},
+  {e:"deal with",j:"〜を扱う、対処する",ex:"It's not easy to ( ) stress at work."},
+  {e:"result in",j:"〜という結果になる",ex:"Arguments often ( ) misunderstandings."},
+  {e:"at the same time",j:"同時に",ex:"You cannot be in two places ( )."},
+  {e:"in spite of",j:"〜にもかかわらず",ex:"( ) the rain, they continued the game."},
+  {e:"in addition to",j:"〜に加えて",ex:"( ) English, she speaks French and Spanish."},
+  {e:"make sure",j:"確かめる、確実にする",ex:"Please ( ) the door is locked before you leave."},
+  {e:"take place",j:"起こる、行われる",ex:"The ceremony will ( ) in the main hall."},
+  {e:"due to",j:"〜のために、〜が原因で",ex:"The flight was cancelled ( ) bad weather."},
+  {e:"in order to",j:"〜するために",ex:"She studied hard ( ) pass the exam."},
+  {e:"as a result",j:"その結果",ex:"He worked hard and, ( ), was promoted."},
+  {e:"get along with",j:"〜とうまくやっていく",ex:"She managed to ( ) her new coworkers very well."},
+  {e:"look after",j:"〜の世話をする",ex:"Can you ( ) my cat while I'm away?"},
+  {e:"find out",j:"〜を調べる、〜がわかる",ex:"I need to ( ) what time the store closes."},
+  {e:"give up",j:"諦める、やめる",ex:"Don't ( )! You're almost there."},
+  {e:"turn down",j:"〜を断る、（音量を）下げる",ex:"She decided to ( ) the job offer."},
+  {e:"point out",j:"〜を指摘する",ex:"He started to ( ) several mistakes in my essay."},
+  {e:"look up to",j:"〜を尊敬する",ex:"Many students ( ) their teacher as a role model."},
+  {e:"bring about",j:"〜をもたらす",ex:"New technology can ( ) great changes in our lives."},
+  {e:"stand for",j:"〜を表す、〜の略である",ex:"What does 'AI' ( )?"},
+  {e:"set up",j:"〜を設置する、設立する",ex:"They decided to ( ) a new company last year."},
+  {e:"made up",j:"〜を作り上げる、仲直りする",ex:"Have you ( ) with your sister yet?"},
+  {e:"go through",j:"〜を経験する、〜を調べる",ex:"She seemed to ( ) a difficult time last year."},
+  {e:"works out",j:"うまくいく、運動する",ex:"I hope everything ( ) in the end."},
+  {e:"as well as",j:"〜と同様に、〜に加えて",ex:"She speaks Spanish ( ) English."},
+  {e:"no longer",j:"もはや〜ない",ex:"He ( ) lives in Tokyo."},
+  {e:"sooner or later",j:"遅かれ早かれ",ex:"( ), you'll have to face the truth."},
+  {e:"on time",j:"時間通りに",ex:"Please try to arrive ( ) for the meeting."},
+  {e:"at least",j:"少なくとも",ex:"You should drink ( ) eight glasses of water a day."},
+  {e:"in fact",j:"実際に、実は",ex:"( ), the project was completed ahead of schedule."},
+  {e:"so far",j:"今のところ、これまでのところ",ex:"( ), everything is going according to plan."},
+  {e:"in general",j:"一般的に、概して",ex:"( ), people prefer warmer weather."},
+  {e:"at first",j:"最初は",ex:"( ), he was nervous, but soon relaxed."},
+  {e:"for example",j:"例えば",ex:"Many countries ban tobacco ads. ( ), Australia has strict laws."},
+  {e:"once in a while",j:"時々、たまに",ex:"We go out for dinner ( )."},
+  {e:"right away",j:"すぐに、今すぐ",ex:"Please call me ( ) if anything happens."},
+  {e:"by chance",j:"偶然に",ex:"I met my old friend ( ) at the supermarket."},
+  {e:"all at once",j:"突然、一度に",ex:"( ), the lights went out."},
+  {e:"at a loss",j:"途方に暮れて",ex:"He was completely ( ) for words."},
+  {e:"come across",j:"〜に偶然出会う、見つける",ex:"I happened to ( ) an interesting article online."},
+  {e:"before long",j:"まもなく、すぐに",ex:"( ), spring will arrive."},
+  {e:"at last",j:"ついに、やっと",ex:"( ), they reached the top of the mountain."},
+  // ===== 追加バッチ1: 動詞句 =====
+  {e:"look into",j:"〜を調査する",ex:"The police decided to ( ) the case more carefully."},
+  {e:"give in",j:"降参する、屈する",ex:"After hours of arguing, he finally ( ) to her demands."},
+  {e:"break out",j:"（戦争・火事などが）勃発する",ex:"A fire seemed to ( ) in the warehouse last night."},
+  {e:"turns out",j:"〜であることが判明する",ex:"The new restaurant ( ) to be very popular."},
+  {e:"showed up",j:"現れる、姿を見せる",ex:"He promised to come, but he never ( )."},
+  {e:"look down on",j:"〜を見下す",ex:"It's wrong to ( ) people just because they are poor."},
+  {e:"put up with",j:"〜を我慢する",ex:"I can't ( ) this noise anymore."},
+  {e:"get over",j:"〜を克服する、立ち直る",ex:"It took him months to ( ) the disappointment."},
+  {e:"turn up",j:"現れる、見つかる",ex:"My lost keys happened to ( ) behind the sofa."},
+  {e:"make out",j:"〜を理解する、読み取る",ex:"I couldn't ( ) what he was saying because of the noise."},
+  {e:"go along with",j:"〜に賛成する、従う",ex:"I decided to ( ) his suggestion."},
+  {e:"hand in",j:"〜を提出する",ex:"Please ( ) your homework by Friday."},
+  {e:"take over",j:"〜を引き継ぐ、乗っ取る",ex:"He will ( ) the company when the CEO retires."},
+  {e:"put forward",j:"〜を提案する、提示する",ex:"She decided to ( ) an interesting idea at the meeting."},
+  {e:"let down",j:"〜を失望させる",ex:"I promised I would help, so I didn't want to let him ( )."},
+  {e:"break into",j:"〜に侵入する",ex:"Thieves managed to ( ) the office and steal the computers."},
+  {e:"come about",j:"起こる、生じる",ex:"How did this misunderstanding ( )?"},
+  {e:"keep up with",j:"〜についていく、〜に遅れない",ex:"It's hard to ( ) all the changes in technology."},
+  {e:"cut down on",j:"〜を減らす",ex:"The doctor told him to ( ) sugar and salt."},
+  {e:"pass on",j:"〜を伝える、引き継ぐ",ex:"Please ( ) this message to your manager."},
+  {e:"drop out",j:"中退する、途中でやめる",ex:"He decided to ( ) of university to start his own business."},
+  {e:"take off",j:"離陸する、急成長する",ex:"The plane will ( ) in thirty minutes."},
+  {e:"fill in",j:"〜に記入する、代わりを務める",ex:"Please ( ) the form with your personal information."},
+  {e:"call off",j:"〜を中止する",ex:"They had to ( ) the outdoor event because of rain."},
+  {e:"ran into",j:"〜に偶然出会う、〜にぶつかる",ex:"I ( ) my old teacher at the supermarket."},
+  {e:"fall apart",j:"バラバラになる、崩れる",ex:"The relationship began to ( ) after the argument."},
+  {e:"look over",j:"〜をざっと見る、確認する",ex:"Could you ( ) my report before I submit it?"},
+  {e:"take on",j:"〜を引き受ける、雇う",ex:"The company decided to ( ) more staff."},
+  {e:"sort out",j:"〜を解決する、整理する",ex:"We need to ( ) this problem as soon as possible."},
+  {e:"turn into",j:"〜に変わる",ex:"The caterpillar will ( ) a butterfly."},
+  {e:"give away",j:"〜を無料で配る、秘密を漏らす",ex:"The store is giving ( ) free samples today."},
+  {e:"make up for",j:"〜を埋め合わせる",ex:"Working overtime, she tried to ( ) lost time."},
+  {e:"came up",j:"持ち上がる、生じる",ex:"An important question ( ) during the discussion."},
+  {e:"put on",j:"〜を着る、（体重を）増やす",ex:"It's cold outside, so ( ) your coat."},
+  {e:"take in",j:"〜を理解する、吸収する",ex:"There was so much information that it was hard to ( ) it all."},
+  {e:"hold on",j:"待つ、しっかりつかまる",ex:"( ) a moment — I'll be right back."},
+  {e:"break up with",j:"〜と別れる",ex:"He decided to ( ) his girlfriend after the argument."},
+  {e:"go on",j:"続く、起こる",ex:"What is ( ) here? Everyone looks upset."},
+  {e:"make it",j:"成功する、間に合う",ex:"Despite many obstacles, she finally ( ) to the top."},
+  {e:"turn off",j:"〜を消す、（電源を）切る",ex:"Please ( ) the lights when you leave."},
+  {e:"pick up",j:"〜を拾う、迎えに行く",ex:"Can you ( ) the children from school today?"},
+  {e:"lay off",j:"〜を解雇する",ex:"The company had to ( ) many workers due to the recession."},
+  {e:"hold back",j:"〜を抑える、妨げる",ex:"Fear of failure was ( ) him from moving forward."},
+  {e:"go back on",j:"〜を取り消す、約束を破る",ex:"He decided to ( ) his word and refused to help."},
+  {e:"catch up with",j:"〜に追いつく",ex:"She ran fast to ( ) the others."},
+  {e:"set aside",j:"〜をとっておく、脇に置く",ex:"Try to ( ) some money each month."},
+  {e:"bring up",j:"〜を育てる、〜を持ち出す",ex:"She was brought ( ) by her grandparents."},
+  {e:"look for",j:"〜を探す",ex:"I've been ( ) my glasses all morning."},
+  {e:"stand out",j:"目立つ、際立つ",ex:"Her bright red coat made her ( ) in the crowd."},
+  {e:"wipe out",j:"〜を全滅させる、拭き取る",ex:"The disease managed to ( ) an entire population of birds."},
+  // ===== 追加バッチ2: 前置詞句・形容詞句 =====
+  {e:"on behalf of",j:"〜を代表して、〜のために",ex:"I'm speaking ( ) all the members of the team."},
+  {e:"in terms of",j:"〜の観点から、〜に関して",ex:"( ) cost, this plan is the most efficient."},
+  {e:"with regard to",j:"〜に関して",ex:"( ) your application, we will contact you next week."},
+  {e:"in contrast",j:"対照的に",ex:"( ), the second group showed much better results."},
+  {e:"for fear of",j:"〜を恐れて",ex:"She didn't speak up ( ) making a mistake."},
+  {e:"in place of",j:"〜の代わりに",ex:"He attended the meeting ( ) the director."},
+  {e:"in view of",j:"〜を考慮して",ex:"( ) the bad weather, the event was postponed."},
+  {e:"prior to",j:"〜より前に",ex:"Please complete the form ( ) your appointment."},
+  {e:"regardless of",j:"〜にかかわらず",ex:"Everyone is welcome ( ) their age or background."},
+  {e:"in response to",j:"〜に応じて、〜に答えて",ex:"( ) the complaints, the company changed its policy."},
+  {e:"on the basis of",j:"〜に基づいて",ex:"Decisions should be made ( ) facts, not feelings."},
+  {e:"in favor of",j:"〜に賛成して、〜を支持して",ex:"Most people voted ( ) the new proposal."},
+  {e:"be responsible for",j:"〜に責任がある",ex:"Each team member ( ) a different part of the project.",a:"is responsible for"},
+  {e:"be aware of",j:"〜に気づいている、〜を知っている",ex:"Are you ( ) the risks involved in this plan?",a:"aware of"},
+  {e:"be interested in",j:"〜に興味がある",ex:"She has always ( ) learning new languages.",a:"been interested in"},
+  {e:"be familiar with",j:"〜をよく知っている",ex:"Are you ( ) the rules of this game?",a:"familiar with"},
+  {e:"be concerned about",j:"〜を心配している",ex:"Many people ( ) the effects of climate change.",a:"are concerned about"},
+  {e:"be based on",j:"〜に基づいている",ex:"This film ( ) a true story.",a:"is based on"},
+  {e:"be satisfied with",j:"〜に満足している",ex:"She wasn't fully ( ) the result.",a:"satisfied with"},
+  {e:"be supposed to",j:"〜することになっている",ex:"You ( ) arrive by nine o'clock.",a:"are supposed to"},
+  {e:"be known for",j:"〜で知られている",ex:"Japan ( ) its high-speed trains.",a:"is known for"},
+  {e:"be made from",j:"〜から作られている（原料）",ex:"Wine ( ) grapes.",a:"is made from"},
+  {e:"be related to",j:"〜と関係がある",ex:"This problem ( ) the lack of funding.",a:"is related to"},
+  {e:"be involved in",j:"〜に関わっている",ex:"She ( ) several community projects.",a:"is involved in"},
+  {e:"be willing to",j:"喜んで〜する",ex:"He ( ) help whenever he is needed.",a:"is willing to"},
+  {e:"be likely to",j:"〜しそうである",ex:"It ( ) rain this afternoon.",a:"is likely to"},
+  {e:"be able to",j:"〜できる",ex:"She ( ) speak three languages fluently.",a:"is able to"},
+  {e:"be eager to",j:"〜したがっている",ex:"The students ( ) learn more about the topic.",a:"are eager to"},
+  {e:"be proud of",j:"〜を誇りに思う",ex:"Her parents ( ) her achievements.",a:"are proud of"},
+  {e:"be different from",j:"〜と異なる",ex:"This method is quite ( ) the old one.",a:"different from"},
+  // ===== 追加バッチ3: 慣用表現・副詞句 =====
+  {e:"in the long run",j:"長い目で見れば、最終的には",ex:"Healthy habits will pay off ( )."},
+  {e:"from time to time",j:"時々、ときどき",ex:"I visit my grandparents ( )."},
+  {e:"little by little",j:"少しずつ",ex:"Her English improved ( ) through daily practice."},
+  {e:"by no means",j:"決して〜ない",ex:"This is ( ) an easy task."},
+  {e:"all the way",j:"ずっと、はるばる",ex:"She came ( ) from Australia to attend the ceremony."},
+  {e:"by and large",j:"概して、大体において",ex:"( ), the plan worked well."},
+  {e:"in the end",j:"最終的に、結局",ex:"( ), they decided to cancel the project."},
+  {e:"above all",j:"何より、特に",ex:"( ), please take care of your health."},
+  {e:"after all",j:"結局、やはり",ex:"He passed the exam ( ), even though he hadn't studied much."},
+  {e:"in a hurry",j:"急いで",ex:"She left the house ( ) and forgot her phone."},
+  {e:"on purpose",j:"わざと、故意に",ex:"I'm sorry, I didn't break it ( )."},
+  {e:"by oneself",j:"一人で、独力で",ex:"She repaired the bicycle all ( )."},
+  {e:"in person",j:"直接、本人が",ex:"You should apply ( ) rather than by email."},
+  {e:"at present",j:"現在のところ",ex:"( ), we have no plans to expand."},
+  {e:"at once",j:"すぐに、同時に",ex:"Please come to my office ( )."},
+  {e:"in turn",j:"順番に、今度は",ex:"Each student answered the question ( )."},
+  {e:"in common",j:"共通に",ex:"The two cultures have a lot ( )."},
+  {e:"at times",j:"時々",ex:"( ), the job can be very stressful."},
+  {e:"in vain",j:"無駄に、徒労に",ex:"He tried to contact her, but ( )."},
+  {e:"on sale",j:"売りに出されて、特売で",ex:"These shoes are ( ) for half price."},
+  {e:"in public",j:"人前で、公の場で",ex:"He felt nervous speaking ( )."},
+  {e:"by mistake",j:"間違えて",ex:"I sent the email to the wrong person ( )."},
+  {e:"in return",j:"お返しに、その代わりに",ex:"She helped him, and ( ), he cooked dinner for her."},
+  {e:"at heart",j:"本当は、心の底では",ex:"He seems tough, but ( ) he is very kind."},
+  {e:"on the rise",j:"増加している",ex:"The number of online shoppers is ( )."},
+  {e:"out of date",j:"時代遅れの",ex:"This information is completely ( )."},
+  {e:"out of order",j:"故障中の",ex:"I'm afraid this elevator is ( )."},
+  {e:"in the meantime",j:"その間に、差し当たり",ex:"The repairs will take a week; ( ), please use the back door."},
+  {e:"by all means",j:"ぜひ、どうぞ",ex:"( ), feel free to ask me any questions."},
+  {e:"in advance",j:"前もって、事前に",ex:"Please let me know ( ) if you cannot attend."},
+  {e:"out of the question",j:"問題外の、論外の",ex:"Going to the party tonight is ( ) — I have work to do."},
+  {e:"in a row",j:"連続して、一列に",ex:"The team won five games ( )."},
+  {e:"on a regular basis",j:"定期的に",ex:"He exercises ( ) to stay healthy."},
+  {e:"as a rule",j:"概して、原則として",ex:"( ), the library closes at eight."},
+  {e:"in practice",j:"実際には",ex:"The plan sounds good, but ( ), it may not work."},
+  {e:"according to",j:"〜によれば、〜に従って",ex:"( ) the weather forecast, it will rain tomorrow."},
+  {e:"thanks to",j:"〜のおかげで",ex:"( ) your help, we finished the project on time."},
+  {e:"regardless of",j:"〜にかかわらず",ex:"The rule applies to everyone, ( ) their position."},
+  {e:"in contrast to",j:"〜と対照的に",ex:"( ) last year, sales have increased significantly."},
+  {e:"make a difference",j:"違いを生む、重要である",ex:"Even small actions can ( ) in someone's life."},
+  {e:"make a decision",j:"決断する",ex:"It's time to ( ) about your future career."},
+  {e:"make an effort",j:"努力する",ex:"Everyone should ( ) to reduce waste."},
+  {e:"make a mistake",j:"間違える",ex:"Don't worry if you ( ) — everyone does."},
+  {e:"make progress",j:"進歩する",ex:"She is making ( ) in her language studies."},
+  {e:"pay attention to",j:"〜に注意を払う",ex:"Please ( ) the safety instructions."},
+  {e:"take care of",j:"〜の世話をする、処理する",ex:"He agreed to ( ) the arrangements while she was away."},
+  {e:"take a risk",j:"危険を冒す",ex:"Starting a business always means ( )."},
+  {e:"take action",j:"行動を起こす",ex:"The government needs to ( ) on climate change."},
+  {e:"keep an eye on",j:"〜から目を離さない、〜を監視する",ex:"Could you ( ) my bag while I go to the bathroom?"},
+  {e:"lose one's temper",j:"怒りを爆発させる",ex:"He rarely ( ) his temper, but today was different.",a:"loses his temper"},
+  {e:"have access to",j:"〜へのアクセスがある",ex:"All students ( ) the online library."},
+  {e:"have difficulty doing",j:"〜するのに困難がある",ex:"Many elderly people ( ) using smartphones."},
+  {e:"look on A as B",j:"AをBとみなす",ex:"She seemed to ( ) him as a mentor."},
+  {e:"think highly of",j:"〜を高く評価する",ex:"His colleagues ( ) his dedication to work."},
+  {e:"make fun of",j:"〜をからかう",ex:"It's not kind to ( ) others."},
+  {e:"lose sight of",j:"〜を見失う、〜を忘れる",ex:"Don't ( ) your original goals."},
+  {e:"account for",j:"〜を説明する、〜の割合を占める",ex:"Can you ( ) the missing funds?"},
+  {e:"contribute to",j:"〜に貢献する、〜の一因となる",ex:"Regular exercise ( ) good health."},
+  {e:"result from",j:"〜から生じる",ex:"The accident seemed to ( ) a moment of carelessness."},
+  {e:"refer to",j:"〜に言及する、〜を参照する",ex:"The speaker began to ( ) several recent studies."},
+  {e:"depend on",j:"〜に頼る、〜次第である",ex:"Your success will ( ) how much effort you put in."},
+  {e:"respond to",j:"〜に応答する、反応する",ex:"She didn't ( ) my emails for a week."},
+  {e:"consist of",j:"〜から成る",ex:"The committee will ( ) ten members."},
+  {e:"insist on",j:"〜を主張する、〜にこだわる",ex:"He continued to ( ) paying for dinner himself."},
+  {e:"apologize for",j:"〜について謝る",ex:"She decided to ( ) being late to the meeting."},
+  {e:"apply for",j:"〜に応募する、申請する",ex:"He decided to ( ) the scholarship."},
+  {e:"benefit from",j:"〜から恩恵を受ける",ex:"Students can ( ) the new online resources."},
+  {e:"prevent from doing",j:"〜が〜するのを妨げる",ex:"The heavy rain ( ) us from going out.",a:"prevented"},
+  {e:"succeeded in",j:"〜に成功する",ex:"After many attempts, she finally ( ) passing the exam."},
+  {e:"be engaged in",j:"〜に従事している",ex:"He ( ) research on climate change.",a:"is engaged in"},
+  {e:"cope with",j:"〜に対処する、〜をうまく処理する",ex:"It's difficult to ( ) so much pressure."},
+  {e:"interfere with",j:"〜を妨げる、〜に干渉する",ex:"Loud music ( ) my concentration."},
+  {e:"apart from",j:"〜を除いて、〜のほかに",ex:"( ) a few minor issues, the plan is excellent."},
+  {e:"in addition",j:"加えて、その上",ex:"He speaks English and French; ( ), he knows some Japanese."},
+  {e:"on the contrary",j:"それどころか、反対に",ex:"He isn't tired; ( ), he seems full of energy."},
+  {e:"in brief",j:"手短に言えば",ex:"( ), the project was a great success."},
+  {e:"in conclusion",j:"結論として",ex:"( ), I believe we should adopt the new system."},
+  {e:"to begin with",j:"まず第一に、そもそも",ex:"( ), let me explain the background of this issue."},
+  {e:"on the whole",j:"全体的に見て、概して",ex:"( ), the event went very smoothly."},
+  {e:"at any rate",j:"いずれにしても、とにかく",ex:"( ), we need to make a decision by tomorrow."},
+  {e:"as a matter of fact",j:"実は、実のところ",ex:"( ), I've met her before."},
+  {e:"in other words",j:"言い換えると",ex:"( ), you're saying the plan won't work."},
+  {e:"to tell the truth",j:"本当のことを言うと",ex:"( ), I forgot all about the appointment."},
+  {e:"needless to say",j:"言うまでもなく",ex:"( ), exercise is important for good health."},
+  {e:"not to mention",j:"〜は言うまでもなく",ex:"She can play piano, ( ) the guitar."},
+  {e:"as long as",j:"〜する限り、〜さえすれば",ex:"You can borrow my bike ( ) you return it by evening."},
+  {e:"no matter what",j:"何が起きても",ex:"( ), I will support you."},
+  {e:"no matter how",j:"どれだけ〜でも",ex:"( ) hard it is, keep trying."},
+  {e:"even though",j:"〜にもかかわらず",ex:"( ) she was tired, she kept working."},
+  {e:"now that",j:"〜である今は、〜だから",ex:"( ) you've graduated, what are your plans?"},
+  {e:"provided that",j:"〜という条件で",ex:"You can go out ( ) you finish your homework first."},
+  {e:"such as",j:"〜のような、たとえば",ex:"I enjoy outdoor activities ( ) hiking and cycling."},
+  {e:"in case of",j:"〜の場合には",ex:"( ) emergency, please call this number."},
+  {e:"except for",j:"〜を除いて",ex:"Everyone was on time ( ) Tom."},
+  {e:"instead of",j:"〜の代わりに",ex:"She had tea ( ) coffee."},
+  {e:"in front of",j:"〜の前に",ex:"He stood ( ) the crowd and gave a speech."},
+  {e:"close to",j:"〜の近くに、〜に近い",ex:"The hotel is ( ) the station."},
+  {e:"compared to",j:"〜と比べると",ex:"( ) last year, prices have risen significantly."},
+  {e:"along with",j:"〜と一緒に、〜に加えて",ex:"She sent the report ( ) a brief explanation."},
+  {e:"together with",j:"〜と一緒に",ex:"The children played ( ) their neighbors."},
+  {e:"as for",j:"〜については",ex:"( ) the cost, we will discuss it later."},
+  {e:"because of",j:"〜のために、〜が原因で",ex:"The match was cancelled ( ) bad weather."},
+  {e:"in memory of",j:"〜を偲んで、〜の記念として",ex:"A statue was built ( ) the famous scientist."},
+  {e:"by means of",j:"〜によって、〜を使って",ex:"They communicated ( ) sign language."},
+  {e:"in spite of",j:"〜にもかかわらず",ex:"They finished the project ( ) many difficulties."},
+  {e:"on account of",j:"〜のために、〜が理由で",ex:"The game was stopped ( ) rain."},
+  {e:"with the help of",j:"〜の助けを借りて",ex:"( ) modern technology, communication has become much easier."},
+  {e:"in exchange for",j:"〜と引き換えに",ex:"She gave him a book ( ) his advice."},
+  {e:"at the cost of",j:"〜を犠牲にして",ex:"He achieved success ( ) his health."},
+  {e:"on the verge of",j:"〜しそうな、〜の瀬戸際に",ex:"The company was ( ) bankruptcy."},
+  {e:"in the wake of",j:"〜の後で、〜に続いて",ex:"Many changes occurred ( ) the disaster."},
+  {e:"at the expense of",j:"〜を犠牲にして、〜の費用で",ex:"He became famous ( ) his family life."},
+  {e:"with a view to",j:"〜を目的として",ex:"She studied abroad ( ) improving her English."},
+  {e:"for the purpose of",j:"〜の目的で",ex:"This fund was created ( ) supporting young artists."},
+  {e:"in cooperation with",j:"〜と協力して",ex:"The project was carried out ( ) local businesses."},
+  {e:"on the condition that",j:"〜という条件で",ex:"I'll lend you the money ( ) you pay it back by Friday."},
+  {e:"in proportion to",j:"〜に比例して",ex:"Your salary will increase ( ) your experience."},
+  {e:"regardless of",j:"〜にかかわらず",ex:"The scholarship is open to everyone ( ) nationality."},
+  {e:"at the mercy of",j:"〜のなすがままで",ex:"The small boat was ( ) the powerful waves."},
+  {e:"in pursuit of",j:"〜を求めて",ex:"He moved to the city ( ) better job opportunities."},
+  {e:"on the grounds that",j:"〜という理由で",ex:"The case was dismissed ( ) there was not enough evidence."},
+  {e:"make the best of",j:"〜を最大限に活用する",ex:"We couldn't change the situation, so we tried to ( ) it."},
+  {e:"take ... into account",j:"〜を考慮に入れる",ex:"Please ( ) all the risks before making a decision."},
+  {e:"make allowances for",j:"〜を考慮する、大目に見る",ex:"We should ( ) cultural differences when working internationally."},
+  {e:"make the most of",j:"〜を最大限に活かす",ex:"She decided to ( ) every opportunity during her stay abroad."},
+  {e:"have second thoughts",j:"考え直す、迷う",ex:"After signing the contract, he began to ( ) about the deal."},
+  {e:"lose heart",j:"気力を失う、落胆する",ex:"When things get tough, don't ( )."},
+  {e:"keep one's word",j:"約束を守る",ex:"He always ( ), no matter what.",a:"keep his word"},
+  {e:"bear in mind",j:"〜を心に留める",ex:"Please ( ) that the deadline is next Monday."},
+  {e:"go to extremes",j:"極端に走る",ex:"There's no need to ( ); just be reasonable."},
+  {e:"make up one's mind",j:"決心する",ex:"She finally ( ) to study abroad.",a:"made up her mind"},
+  {e:"change one's mind",j:"考えを変える",ex:"He decided to ( ) at the last minute and not go.",a:"change his mind"},
+  {e:"have a word with",j:"〜と少し話す",ex:"Could I ( ) you after the meeting?"},
+  {e:"at one's disposal",j:"〜の自由に使える",ex:"All the equipment is ( ) your disposal.",a:"at"},
+  {e:"on one's own",j:"一人で、独力で",ex:"She built the website entirely ( ).",a:"on her own"},
+  {e:"out of one's mind",j:"気が狂って、正気でない",ex:"Are you ( )? That plan is far too risky!",a:"out of your mind"},
+  {e:"under pressure",j:"プレッシャーの下で",ex:"She performs well even ( )."},
+  {e:"in trouble",j:"困って、問題を抱えて",ex:"If you're ever ( ), don't hesitate to ask for help."},
+  {e:"in danger",j:"危険な状態で",ex:"The injured hiker was ( ) and needed rescue immediately."},
+  {e:"out of control",j:"手に負えない、制御不能で",ex:"The fire spread quickly and soon went ( )."},
+  {e:"under construction",j:"建設中で",ex:"The new bridge is still ( )."},
+  {e:"in charge of",j:"〜を担当して、〜を管理して",ex:"Who is ( ) this department?"},
+  {e:"in need of",j:"〜を必要としている",ex:"The building is ( ) major repairs."},
+  {e:"at risk",j:"危険にさらされて",ex:"Many species are ( ) due to climate change."},
+  {e:"out of stock",j:"在庫切れで",ex:"I'm sorry, that item is currently ( )."},
+  {e:"in progress",j:"進行中で",ex:"The meeting is ( ), so please wait outside."},
+  {e:"under way",j:"進行中で、始まって",ex:"Preparations for the festival are already ( )."},
+  {e:"in fashion",j:"流行中で",ex:"Wide-leg jeans are ( ) again this season."},
+  {e:"at stake",j:"危機に瀕して、賭けられて",ex:"Many jobs are ( ) if the factory closes."},
+  {e:"on duty",j:"勤務中で",ex:"There is always a doctor ( ) in the emergency room."},
+  {e:"off duty",j:"非番で、仕事が終わって",ex:"The officer was ( ) when the incident occurred."},
+  {e:"in session",j:"開会中で、開廷中で",ex:"The court is ( ), so please be quiet."},
+  {e:"under arrest",j:"逮捕されて",ex:"The suspect was placed ( )."},
+  {e:"on trial",j:"裁判中で、試用中で",ex:"The new system is currently ( )."},
+  {e:"at work",j:"仕事中で、働いて",ex:"He is usually ( ) by eight in the morning."},
+  {e:"in demand",j:"需要がある",ex:"Skilled engineers are very ( ) right now."},
+  {e:"out of place",j:"場違いで、不適切で",ex:"His joke seemed completely ( ) at the funeral."},
+  {e:"out of shape",j:"体型が崩れて、不健康で",ex:"After not exercising for months, he felt ( )."},
+  {e:"in good shape",j:"体調が良くて、良い状態で",ex:"Regular exercise keeps you ( )."},
+  {e:"off the record",j:"非公式に、オフレコで",ex:"What I'm about to say is strictly ( )."},
+  {e:"on the spot",j:"その場で、即座に",ex:"He was hired ( ) after a brief interview."},
+  {e:"from scratch",j:"ゼロから、最初から",ex:"She built the business ( )."},
+  {e:"out of the blue",j:"突然、青天の霹靂で",ex:"His resignation came completely ( )."},
+  {e:"once and for all",j:"きっぱりと、最終的に",ex:"Let's settle this issue ( )."},
+  {e:"face to face",j:"面と向かって、直接",ex:"It's better to discuss this ( ) rather than by email."},
+  {e:"heart to heart",j:"腹を割って、本音で",ex:"They had a ( ) talk about their relationship."},
+  {e:"day by day",j:"日ごとに、少しずつ",ex:"Her condition improved ( )."},
+  {e:"step by step",j:"一歩一歩、段階的に",ex:"Follow the instructions ( )."},
+  {e:"side by side",j:"横並びに、共に",ex:"The two countries worked ( ) to solve the problem."},
+  {e:"now and then",j:"時々",ex:"I still see my old friends ( )."},
+  {e:"here and there",j:"あちこちに",ex:"Flowers were blooming ( ) along the path."},
+  {e:"back and forth",j:"行ったり来たり",ex:"She walked ( ) nervously while waiting for news."},
+  {e:"on and off",j:"断続的に、時々",ex:"It rained ( ) throughout the day."},
+  {e:"sooner or later",j:"遅かれ早かれ",ex:"( ), the truth will come out."},
+  {e:"more and more",j:"ますます多くの",ex:"( ) people are choosing to work from home."},
+  {e:"less and less",j:"ますます少なく",ex:"She found herself spending ( ) time outdoors."},
+  {e:"all in all",j:"全体的に見て、総合的に",ex:"( ), the trip was a great success."},
+  {e:"all of a sudden",j:"突然",ex:"( ), the dog started barking loudly."},
+  {e:"in the long run",j:"長い目で見れば",ex:"Saving regularly pays off ( )."},
+  {e:"in a sense",j:"ある意味で",ex:"( ), he was right about the outcome."},
+  {e:"in a way",j:"ある意味では",ex:"( ), I can understand why she was upset."},
+  {e:"to some extent",j:"ある程度まで",ex:"I agree with your argument ( )."},
+  {e:"to a certain degree",j:"ある程度",ex:"The plan has been successful ( )."},
+  {e:"as a whole",j:"全体として",ex:"The class ( ) performed well on the exam."},
+  {e:"on a large scale",j:"大規模に",ex:"The company operates ( )."},
+  {e:"in the first place",j:"そもそも、第一に",ex:"Why did you agree to help ( )?"},
+  {e:"for good",j:"永久に、二度と",ex:"He left the city ( ) and never returned."},
+  {e:"all at once",j:"突然、一度に",ex:"( ), everything became clear."},
+  {e:"every now and then",j:"時々",ex:"( ), she sends me a letter."},
+  {e:"from now on",j:"今後は、これからは",ex:"( ), please submit all reports by Friday."},
+  {e:"up to now",j:"今まで",ex:"( ), no one has complained about the service."},
+,
+  {e:"end up",j:"〜になってしまう",ex:"We ( ) spending twice our budget on the trip."},
+  {e:"lead to",j:"〜につながる",ex:"Poor diet can ( ) serious health problems."},
+  {e:"reach out",j:"手を伸ばす、連絡を取る",ex:"Don't hesitate to ( ) if you need any help."},
+  {e:"prevent A from B",j:"AがBするのを妨げる",ex:"The rain seemed to ( ) us from going outside."},
+  {e:"be born with",j:"〜を持って生まれる",ex:"She seems to ( ) a natural talent for music."},
+  {e:"since then",j:"それ以来",ex:"He moved abroad in 2010 and ( ) has lived there."},
+  {e:"turn A into B",j:"AをBに変える",ex:"The artist managed to ( ) scrap metal into beautiful sculptures."},
+  {e:"get along",j:"うまくやっていく",ex:"Do you ( ) well with your coworkers?"},
+  {e:"invest in",j:"〜に投資する",ex:"The company decided to ( ) renewable energy."},
+  {e:"rely on",j:"〜に頼る",ex:"You can always ( ) her when you need support."},
+  {e:"vote for",j:"〜に投票する",ex:"Everyone has the right to ( ) the candidate of their choice."},
+  {e:"apply to",j:"〜に適用される",ex:"These rules ( ) all members without exception."},
+  {e:"in touch",j:"連絡を取って",ex:"We stayed ( ) by email after she moved abroad."},
+  {e:"capable of",j:"〜ができる",ex:"He is ( ) solving very complex problems."},
+  {e:"takes after",j:"〜に似ている",ex:"She really ( ) her mother in both looks and personality."},
+  {e:"guilty of",j:"〜の罪を犯している",ex:"He was found ( ) breaking the traffic law."},
+  {e:"hear from",j:"〜から連絡がある",ex:"I haven't ( ) her in months."},
+  {e:"from time to time",j:"時々",ex:"I visit my grandparents ( )."},
+  {e:"in demand",j:"需要がある",ex:"Skilled software engineers are very ( ) right now."},
+  {e:"in the meantime",j:"その間に",ex:"The repairs will take a week; ( ), please use the back door."},
+  {e:"to some extent",j:"ある程度",ex:"I agree with your argument ( )."},
+  {e:"at any cost",j:"何としてでも",ex:"She was determined to succeed ( )."},
+  {e:"on the contrary",j:"それどころか",ex:"He isn't lazy; ( ), he works harder than anyone."},
+  {e:"lose face",j:"面目を失う",ex:"He didn't want to ( ) by admitting his mistake in public."},
+  {e:"answer for",j:"〜の責任を取る",ex:"You will have to ( ) your actions."},
+  {e:"insist on",j:"〜を主張する",ex:"He continued to ( ) paying for dinner himself."},
+  {e:"not always",j:"必ずしも〜ではない",ex:"Money does ( ) bring happiness."},
+  {e:"in common",j:"共通に",ex:"The two cultures have a lot ( )."},
+  {e:"be affected by",j:"〜の影響を受ける",ex:"Many businesses ( ) the economic slowdown.",a:"are affected by"},
+  {e:"have effects on",j:"〜に影響を与える",ex:"Stress can ( ) your health negatively."},
+  {e:"in advance",j:"前もって",ex:"Please let me know ( ) if you cannot attend."},
+  {e:"make a difference",j:"違いを生む",ex:"Even small acts of kindness can ( )."},
+  {e:"on purpose",j:"わざと",ex:"I'm sorry—I didn't break it ( )."},
+  {e:"similar to",j:"〜に似ている",ex:"This method is quite ( ) the one we used last year."},
+  {e:"at one time",j:"かつて",ex:"( ), this entire area was covered in forest."},
+  {e:"all the way",j:"ずっと、はるばる",ex:"She traveled ( ) from Canada just to attend the event."},
+  {e:"pull away",j:"引き離す、離れる",ex:"The train slowly ( ) from the platform."},
+  {e:"try out",j:"試してみる",ex:"Why don't you ( ) the new app before deciding?"},
+  {e:"call it a day",j:"仕事を切り上げる",ex:"It's getting late—let's ( )."},
+  {e:"have an effect on",j:"〜に影響を与える",ex:"Music can ( ) a person's mood significantly."},
+  {e:"heart rate",j:"心拍数",ex:"Exercise increases your ( ) and burns calories."},
+  {e:"be beneficial to",j:"〜に有益である",ex:"Regular reading ( ) both children and adults.",a:"is beneficial to"},
+  {e:"what is called",j:"いわゆる",ex:"He experienced ( ) culture shock when he moved abroad."},
+  {e:"check for",j:"〜を確認する",ex:"Always ( ) spelling mistakes before submitting."},
+  {e:"after all",j:"結局",ex:"He passed the exam ( ), even without studying much."},
+  {e:"over time",j:"時間の経過とともに",ex:"Her confidence grew ( ) with practice."},
+  {e:"for some time",j:"しばらくの間",ex:"She had been feeling unwell ( ) before seeing a doctor."},
+  {e:"all around the world",j:"世界中で",ex:"This product is sold ( )."},
+  {e:"in reality",j:"実際には",ex:"The plan seemed great, but ( ) it had many flaws."},
+  {e:"depend on",j:"〜によって異なる",ex:"Your result will ( ) how much effort you put in."},
+  {e:"claim to do",j:"〜すると主張する",ex:"He continued to ( ) have seen the accident himself."},
+  {e:"agree with",j:"〜に同意する",ex:"I fully ( ) your proposal."},
+  {e:"throw away",j:"〜を捨てる",ex:"Don't ( ) that receipt—you might need it."},
+  {e:"up to",j:"〜次第で",ex:"It's ( ) you to decide what to do."},
+  {e:"fossil fuel",j:"化石燃料",ex:"Burning ( ) releases carbon dioxide into the atmosphere."},
+  {e:"be filled with",j:"〜でいっぱいである",ex:"The hall ( ) excited fans.",a:"was filled with"},
+  {e:"remind",j:"〜を思い出させる（remind A of B）",ex:"This song will always ( ) me of my childhood."},
+  {e:"concentrate on",j:"〜に集中する",ex:"It's hard to ( ) work when there's so much noise."},
+  {e:"laugh at",j:"〜を笑う",ex:"Don't ( ) people when they make mistakes."},
+  {e:"well off",j:"裕福な",ex:"Her family is quite ( ) and lives in a large house."},
+  {e:"drop off",j:"〜を降ろす",ex:"Can you ( ) me at the station?"},
+  {e:"leave out",j:"〜を省く",ex:"Don't ( ) any important details in your report."},
+  {e:"be concerned with",j:"〜と関係している",ex:"This chapter is mainly ( ) environmental issues.",a:"concerned with"},
+  {e:"hundreds of",j:"何百もの",ex:"( ) people attended the outdoor concert."},
+  {e:"do well",j:"うまくやる",ex:"She seemed to ( ) in all her school subjects."},
+  {e:"provide A with B",j:"AにBを提供する",ex:"The company decided to ( ) all employees with free meals."},
+  {e:"in the long run",j:"長い目で見れば",ex:"Healthy habits will pay off ( )."},
+  {e:"drop by",j:"立ち寄る",ex:"Feel free to ( ) whenever you're in the area."},
+  {e:"on schedule",j:"予定通りに",ex:"The project is running ( ) and will finish by Friday."},
+  {e:"as though",j:"まるで〜のように",ex:"She spoke ( ) she had known him for years."},
+  {e:"be pleased with",j:"〜に満足している",ex:"The manager ( ) the team's performance.",a:"was pleased with"},
+  {e:"take A for granted",j:"Aを当然のことと思う",ex:"Don't ( ) the support your friends give you."},
+  {e:"run away",j:"逃げる",ex:"The child tried to ( ) from home but was found the next day."},
+  {e:"pass out",j:"気を失う",ex:"She seemed to ( ) from the heat and had to be carried inside."},
+  {e:"put away",j:"〜を片付ける",ex:"Please ( ) your toys before dinner."},
+  {e:"believe in",j:"〜を信じる",ex:"You have to ( ) yourself to succeed."},
+  {e:"calm down",j:"落ち着く",ex:"Take a deep breath and ( )."},
+  {e:"what is worse",j:"さらに悪いことに",ex:"He lost his wallet, and ( ), his phone too."},
+  {e:"react to",j:"〜に反応する",ex:"How did she ( ) the news?"},
+  {e:"associated with",j:"〜と関連している",ex:"Smoking ( ) many serious health problems."},
+  {e:"to start with",j:"まず最初に",ex:"( ), let me explain the background of this issue."},
+  {e:"first of all",j:"まず第一に",ex:"( ), I'd like to thank everyone for coming."},
+  {e:"congratulations on",j:"〜おめでとう",ex:"( ) your graduation!"},
+  {e:"specialize in",j:"〜を専門とする",ex:"This clinic tends to ( ) sports injuries."},
+  {e:"for free",j:"無料で",ex:"Children under five can enter ( )."},
+  {e:"memory loss",j:"記憶喪失",ex:"She experienced ( ) after the accident."},
+  {e:"be considered to",j:"〜と考えられている",ex:"Regular exercise ( ) be essential for good health.",a:"is considered to"},
+  {e:"amount to",j:"〜に達する",ex:"The total cost ( ) over five thousand dollars."},
+  {e:"in some way",j:"ある意味で",ex:"( ), every experience teaches us something valuable."},
+  {e:"be connected to",j:"〜とつながっている",ex:"These two events are closely ( ) each other.",a:"connected to"},
+  {e:"with luck",j:"うまくいけば",ex:"( ), we'll finish the project by Friday."},
+  {e:"speaking of",j:"〜と言えば",ex:"( ) travel, have you ever been to Italy?"},
+  {e:"at best",j:"よくても",ex:"The plan will ( ) reduce costs by ten percent."},
+  {e:"in effect",j:"事実上",ex:"The new rules are ( ) already."},
+  {e:"in fashion",j:"流行中で",ex:"Wide trousers are ( ) again this season."},
+  {e:"on demand",j:"要求に応じて",ex:"The service allows users to watch videos ( )."},
+  {e:"from now on",j:"今後は",ex:"( ), please submit all reports by Monday."},
+  {e:"fill out",j:"〜に記入する",ex:"Please ( ) this form with your contact details."},
+  {e:"carbon dioxide",j:"二酸化炭素",ex:"Cars emit large amounts of ( ) into the atmosphere."},
+  {e:"out of use",j:"使われなくなって",ex:"The old phone boxes are now ( )."},
+  {e:"be effective at",j:"〜に効果的である",ex:"This medicine is very ( ) reducing pain.",a:"effective at"},
+  {e:"on the run",j:"逃走中で",ex:"The suspect has been ( ) for three days."},
+  {e:"struggle with",j:"〜に苦労する",ex:"Many students ( ) math at school."},
+  {e:"get used to",j:"〜に慣れる",ex:"It took me a while to ( ) living in a big city."},
+  {e:"come into being",j:"生じる、誕生する",ex:"A new era ( ) with the invention of the internet."},
+  {e:"within reach",j:"手の届く範囲で",ex:"Keep your phone ( ) in case someone calls."},
+  {e:"on average",j:"平均して",ex:"( ), people spend over three hours a day on their phones."},
+  {e:"be short of",j:"〜が不足している",ex:"We ( ) volunteers for the event.",a:"are short of"},
+  {e:"play a role in",j:"〜において役割を果たす",ex:"Diet ( ) preventing many diseases."},
+  {e:"large amount of",j:"大量の〜",ex:"The project requires a ( ) funding."},
+  {e:"do away with",j:"〜を廃止する",ex:"The school decided to ( ) the old uniform policy."},
+  {e:"take care",j:"気をつける",ex:"Please ( ) while crossing the busy road."},
+  {e:"be obliged to",j:"〜する義務がある",ex:"All employees ( ) follow the company's code of conduct.",a:"are obliged to"},
+  {e:"get away with",j:"〜をうまく切り抜ける",ex:"Don't think you can ( ) breaking the rules."},
+  {e:"complain of",j:"〜を訴える",ex:"The patient began to ( ) severe headaches."},
+  {e:"look through",j:"〜をざっと調べる",ex:"She decided to ( ) the pages to find the relevant section."},
+  {e:"blame for",j:"〜のせいにする",ex:"Don't ( ) others ( ) your own mistakes."},
+  {e:"go after",j:"〜を追いかける、目指す",ex:"She decided to ( ) her dream of becoming a doctor."},
+  {e:"by nature",j:"生まれつき",ex:"He is ( ) a very shy person."},
+  {e:"differ from",j:"〜と異なる",ex:"This approach seems to ( ) the traditional method in several ways."},
+  {e:"distract",j:"〜の気を散らす",ex:"Loud music ( ) me when I'm trying to study."},
+  {e:"come out",j:"出てくる、公表される",ex:"When will the results ( )?"},
+  {e:"stay up",j:"起きている",ex:"Don't ( ) too late—you have an early class."},
+  {e:"in exchange",j:"交換として",ex:"She taught him English ( ) for Spanish lessons."},
+  {e:"bound for",j:"〜に向かっている",ex:"The train ( ) Tokyo will depart from platform three."},
+  {e:"in stock",j:"在庫がある",ex:"I'm happy to say this item is back ( )."},
+  {e:"act on",j:"〜に基づいて行動する",ex:"The doctor advised her to ( ) the test results immediately."},
+  {e:"persist in",j:"〜にこだわる",ex:"He would ( ) asking questions until he got a satisfying answer."},
+  {e:"pull down",j:"〜を取り壊す",ex:"The old building was ( ) to make way for a new one."},
+  {e:"as follows",j:"以下の通り",ex:"The schedule for the day is ( )."},
+  {e:"be accustomed to",j:"〜に慣れている",ex:"He ( ) waking up early after years of farm work.",a:"is accustomed to"},
+  {e:"in danger of",j:"〜の危険にさらされて",ex:"Several species are ( ) extinction."},
+  {e:"worthy of",j:"〜に値する",ex:"Her dedication is certainly ( ) praise."},
+  {e:"by heart",j:"暗記して",ex:"She learned the poem ( ) in just one day."},
+  {e:"use up",j:"〜を使い果たす",ex:"We've ( ) all the paper—can you order more?"},
+  {e:"traffic jam",j:"交通渋滞",ex:"We were stuck in a ( ) for over an hour."},
+  {e:"rule out",j:"〜を除外する",ex:"The doctor was able to ( ) any serious illness after the tests."},
+  {e:"as if",j:"まるで〜のように",ex:"She looked ( ) she hadn't slept for days."},
+  {e:"one by one",j:"一人ずつ",ex:"The students entered the room ( )."},
+  {e:"before long",j:"まもなく",ex:"( ), the leaves will start to change color."},
+  {e:"bring up",j:"〜を育てる、持ち出す",ex:"She was brought ( ) in a small village in the countryside."},
+  {e:"and so on",j:"〜など",ex:"You can bring food, drinks, ( )."},
+  {e:"along with",j:"〜と一緒に",ex:"She sent the letter ( ) a small gift."},
+  {e:"make fun of",j:"〜をからかう",ex:"It's unkind to ( ) people because of how they look."},
+  {e:"get by",j:"なんとかやっていく",ex:"He managed to ( ) on a very small budget."},
+  {e:"by degrees",j:"少しずつ",ex:"( ), she began to feel more comfortable in her new role."},
+  {e:"hang up",j:"電話を切る",ex:"He decided to ( ) without saying goodbye."},
+  {e:"break out",j:"突発する",ex:"A fire was said to ( ) in the storage room this morning."},
+  {e:"watch out",j:"気をつける",ex:"( )! There's a car coming fast."},
+  {e:"pull off",j:"〜をうまくやり遂げる",ex:"Against all odds, they ( ) a remarkable victory."},
+  {e:"try on",j:"〜を試着する",ex:"Can I ( ) this jacket in a medium?"},
+  {e:"call off",j:"〜を中止する",ex:"They had to ( ) the match because of bad weather."},
+  {e:"hand in",j:"〜を提出する",ex:"Please ( ) your assignment before the end of class."},
+  {e:"a couple of",j:"2、3の",ex:"I'll be back in ( ) minutes."},
+  {e:"in shape",j:"体調が良い",ex:"He goes to the gym to stay ( )."},
+  {e:"consist of",j:"〜から成る",ex:"The committee will ( ) twelve members."},
+  {e:"even if",j:"たとえ〜でも",ex:"( ) it rains, the event will continue indoors."},
+  {e:"How come",j:"なぜ、どうして",ex:"( ) you didn't tell me about the meeting?"},
+  {e:"in contrast to",j:"〜と対照的に",ex:"( ) last year, sales have increased significantly."},
+  {e:"sit up",j:"夜更かしする",ex:"She had to ( ) late to finish her essay."},
+  {e:"a bunch of",j:"たくさんの〜",ex:"She bought ( ) flowers for her mother."},
+];
+
+const VOCAB_EIKEN2 = [
+  // ===== 英検2級試験出題済み単語 =====
+  {e:"govern",j:"統治する、支配する",ex:"When King Otto died, his son was too young to ( ) the kingdom."},
+  {e:"expanded",j:"拡大した（expand）",ex:"The IT company has greatly ( ) since it opened five years ago."},
+  {e:"qualified",j:"資格を得た（qualify）",ex:"Because the team won the championship, they have ( ) for the national finals."},
+  {e:"occupation",j:"職業、仕事",ex:"After 10 years as a taxi driver, Sue decided to try a new ( )."},
+  {e:"gripped",j:"引きつけた（grip）",ex:"Matthew's story ( ) his friends' attention completely."},
+  {e:"consistent",j:"一貫した、矛盾のない",ex:"The politician's view on education was ( ) through his whole career."},
+  {e:"surprisingly",j:"驚くほど",ex:"I did ( ) well on the math test."},
+  {e:"mixture",j:"混合物、混合",ex:"She put the ( ) in a bowl and added some spices."},
+  {e:"judgment",j:"判断（力）",ex:"Sports referees must have excellent ( )."},
+  {e:"democracy",j:"民主主義",ex:"We live in a ( ), so we can vote for the people we want."},
+  {e:"upper",j:"上部の、上半身の",ex:"Hugh did exercises to increase the strength of his ( ) body."},
+  {e:"cliff",j:"崖",ex:"Cindy stood at the edge of a tall ( ), looking down at the waves."},
+  {e:"react",j:"反応する",ex:"How did your husband ( ) when you told him about the baby?"},
+  {e:"philosopher",j:"哲学者",ex:"I'd like to be a ( ). I want to learn about the meaning of life."},
+  {e:"panic",j:"パニックになる",ex:"I started to ( ), but then remembered my passport was in my suitcase."},
+  {e:"review",j:"確認する、復習する",ex:"My boss says we will ( ) my progress next month."},
+  {e:"tie",j:"結ぶ",ex:"Neil stopped to ( ) his shoelaces in the middle of the sidewalk."},
+  {e:"loyalty",j:"忠誠心、愛着",ex:"Fans have a lot of ( ) to the team even after 20 years without a title."},
+  {e:"ignorance",j:"無知、知らないこと",ex:"Arguments often result from people's ( ) of each other's ways."},
+  {e:"thankfully",j:"ありがたいことに",ex:"I got lost in the mountains, but ( ), I found a stream."},
+  {e:"nuclear",j:"核の、原子力の",ex:"The ( ) power plant provided electricity to the entire city."},
+  {e:"flexible",j:"柔軟な、曲げやすい",ex:"The ( ) material allowed for easy bending and shaping."},
+  {e:"domestic",j:"国内の、家庭の",ex:"( ) flights are usually more convenient for short trips within the country."},
+  {e:"suspicious",j:"疑わしい、不審な",ex:"Her behavior was so ( ) that it raised concerns."},
+  {e:"attitude",j:"態度、姿勢",ex:"His positive ( ) made the team more motivated."},
+  {e:"depressed",j:"落ち込んだ、憂うつな",ex:"She felt ( ) after receiving the bad news."},
+  {e:"obvious",j:"明らかな、明白な",ex:"The mistake was ( ) to everyone."},
+  {e:"capable",j:"〜できる、有能な",ex:"She is highly ( ) of handling complex tasks."},
+  {e:"efficient",j:"効率的な",ex:"The new software made our work more ( )."},
+  {e:"intelligence",j:"知性、情報",ex:"Her ( ) is quite remarkable."},
+  {e:"welfare",j:"福祉、幸福",ex:"The government provides ( ) assistance to those in need."},
+  {e:"exhausted",j:"疲れ果てた",ex:"After a long day of hiking, they were ( )."},
+  {e:"responsible",j:"責任がある",ex:"He is ( ) for managing the company's finances."},
+  {e:"artificial",j:"人工の、人工的な",ex:"( ) intelligence is becoming increasingly prevalent in today's technology."},
+  {e:"mature",j:"成熟した、大人の",ex:"Her ( ) attitude impressed her peers."},
+  {e:"experiment",j:"実験",ex:"The scientist conducted an ( ) to test his hypothesis."},
+  {e:"conference",j:"会議、学会",ex:"The annual ( ) brought together experts from around the world."},
+  {e:"reservation",j:"予約",ex:"I made a ( ) for two at the restaurant."},
+  {e:"appointment",j:"予約、約束",ex:"She scheduled an ( ) with her doctor for next week."},
+  {e:"similar",j:"似ている、類似した",ex:"The two paintings are quite ( ) in style and color."},
+  {e:"superior",j:"優れた、上位の",ex:"Her performance at work was ( ) to that of her colleagues."},
+  {e:"suitable",j:"適した、ふさわしい",ex:"The comfortable chair was ( ) for long hours of work."},
+  {e:"ruined",j:"台無しになった（ruin）",ex:"The heavy rainstorm ( ) our picnic plans."},
+  {e:"isolated",j:"孤立した、孤独な",ex:"Living in a remote village, she often felt ( ) from the rest of the world."},
+  {e:"specific",j:"具体的な、特定の",ex:"Please provide me with ( ) details about the project's requirements."},
+  {e:"curious",j:"好奇心旺盛な",ex:"The child's ( ) nature led him to explore every corner of the garden."},
+  {e:"deliver",j:"配達する、届ける",ex:"The mail carrier will ( ) the package tomorrow."},
+  {e:"impatience",j:"焦り、苛立ち",ex:"She couldn't hide her ( ) while waiting for her food."},
+  {e:"application",j:"応募、申請、アプリ",ex:"She submitted her job ( ) online."},
+  {e:"education",j:"教育",ex:"( ) is the key to a brighter future."},
+  {e:"promote",j:"促進する、昇進させる",ex:"The program aims to ( ) eco-friendly products."},
+  {e:"emphasize",j:"強調する",ex:"The program seems to ( ) the importance of being able to fix things."},
+  {e:"phenomenon",j:"現象",ex:"People often observe this interesting ( ) in daily life."},
+  {e:"reflection",j:"反射、映像",ex:"At first, the fish attacked their ( ) in the mirror."},
+  {e:"significant",j:"重要な、著しい",ex:"The discovery had a ( ) impact on science."},
+  {e:"enormous",j:"巨大な",ex:"The company made an ( ) profit last year."},
+  {e:"controversial",j:"物議を醸す",ex:"The new policy was quite ( )."},
+  {e:"gradually",j:"徐々に、少しずつ",ex:"After hearing a song many times, people ( ) come to like it."},
+  {e:"constantly",j:"絶えず、常に",ex:"Technology is ( ) changing our daily lives."},
+  {e:"achieve",j:"達成する",ex:"Edison finally ( ) his goal of inventing the light bulb."},
+  {e:"determine",j:"決定する、突き止める",ex:"The test is used to ( ) whether an animal can recognize itself."},
+  {e:"replace",j:"取り替える、代わりになる",ex:"New technology may ( ) old methods."},
+  {e:"analyze",j:"分析する",ex:"Owls ( ) sound differences to determine the position of animals."},
+  {e:"ban",j:"禁止する",ex:"Some cities decided to ( ) outdoor advertisements."},
+  {e:"prohibit",j:"禁じる",ex:"The law continues to ( ) advertisements on taxis and buses."},
+  {e:"structure",j:"構造、建物",ex:"The ( ) of owl feathers is unique."},
+  {e:"practical",j:"実用的な",ex:"Please watch a video of basic concepts and ( ) examples."},
+  {e:"accurate",j:"正確な",ex:"Referees must be able to make ( ) decisions quickly."},
+  {e:"hesitation",j:"ためらい",ex:"After hearing the song many times, they may buy it without ( )."},
+  {e:"acknowledge",j:"認める、認識する",ex:"He began to ( ) that the plan had some flaws."},
+  // ===== 追加バッチ1: 動詞 =====
+  {e:"accumulate",j:"蓄積する、集まる",ex:"Dust tends to ( ) on shelves if you don't clean regularly."},
+  {e:"acquire",j:"習得する、取得する",ex:"She worked hard to ( ) new skills for her career."},
+  {e:"adapt",j:"適応する、適合させる",ex:"Animals must ( ) to changes in their environment."},
+  {e:"allocate",j:"割り当てる、配分する",ex:"The government decided to ( ) more funds to education."},
+  {e:"anticipate",j:"予期する、見越す",ex:"We ( ) that demand will increase next year."},
+  {e:"assert",j:"断言する、主張する",ex:"She continued to ( ) that she had never broken any rules."},
+  {e:"assess",j:"評価する、査定する",ex:"Teachers need to ( ) each student's progress regularly."},
+  {e:"assume",j:"〜と思い込む、仮定する",ex:"Don't ( ) that everyone agrees with you."},
+  {e:"collapsed",j:"崩壊する、倒れる",ex:"The old building ( ) after the earthquake."},
+  {e:"combat",j:"〜と戦う、撃退する",ex:"The government is trying to ( ) rising crime rates."},
+  {e:"compensate",j:"補償する、埋め合わせる",ex:"The company offered to ( ) customers for the delay."},
+  {e:"concentrate",j:"集中する",ex:"It's hard to ( ) when there's so much noise."},
+  {e:"consume",j:"消費する",ex:"This device tends to ( ) a lot of electricity."},
+  {e:"convince",j:"説得する、確信させる",ex:"He tried to ( ) her to change her mind."},
+  {e:"cooperate",j:"協力する",ex:"All departments need to ( ) to meet the deadline."},
+  {e:"demonstrate",j:"実演する、証明する",ex:"She offered to ( ) how to use the new software."},
+  {e:"devote",j:"捧げる、専念する",ex:"He chose to ( ) his life to helping others."},
+  {e:"distinguish",j:"区別する",ex:"Can you ( ) between the two samples?"},
+  {e:"eliminate",j:"排除する、取り除く",ex:"We must ( ) all possible causes of error."},
+  {e:"emerge",j:"現れる、生じる",ex:"New trends often ( ) from unexpected places."},
+  {e:"enforce",j:"施行する、強制する",ex:"The police are responsible for ( ) the law."},
+  {e:"ensure",j:"確実にする、保証する",ex:"Please ( ) that all documents are submitted on time."},
+  {e:"established",j:"設立する、確立する",ex:"The school was ( ) over one hundred years ago."},
+  {e:"evaluate",j:"評価する",ex:"We need to ( ) the results of the experiment."},
+  {e:"expand",j:"拡大する、広げる",ex:"The company plans to ( ) into new markets."},
+  {e:"exploit",j:"〜を利用する、開発する",ex:"We should ( ) renewable energy sources."},
+  {e:"generate",j:"生み出す、発生させる",ex:"Wind turbines ( ) electricity without pollution."},
+  {e:"implement",j:"実施する、実行する",ex:"The school will ( ) a new grading system next year."},
+  {e:"maintain",j:"維持する、主張する",ex:"It's important to ( ) a healthy lifestyle."},
+  {e:"negotiate",j:"交渉する",ex:"The two sides agreed to ( ) a new deal."},
+  {e:"obtain",j:"手に入れる、取得する",ex:"You need to ( ) permission before entering."},
+  {e:"overcome",j:"克服する",ex:"She managed to ( ) many obstacles to reach her goal."},
+  {e:"participate",j:"参加する",ex:"All students are encouraged to ( ) in the discussion."},
+  {e:"preserve",j:"保護する、保存する",ex:"We must ( ) endangered species."},
+  {e:"pursue",j:"追求する、追う",ex:"She decided to ( ) a career in medicine."},
+  {e:"recover",j:"回復する",ex:"It took him weeks to ( ) from the illness."},
+  {e:"reduce",j:"減らす",ex:"We need to ( ) our carbon emissions."},
+  {e:"reinforce",j:"強化する",ex:"The teacher used examples to ( ) the lesson."},
+  {e:"reject",j:"拒否する、却下する",ex:"The committee decided to ( ) the proposal."},
+  {e:"release",j:"解放する、公開する",ex:"The company will ( ) its new product next month."},
+  {e:"represent",j:"代表する、表す",ex:"She was chosen to ( ) her school at the competition."},
+  {e:"resolve",j:"解決する、決意する",ex:"They managed to ( ) the dispute peacefully."},
+  {e:"restricted",j:"制限する",ex:"Access to the building is ( ) to staff only."},
+  {e:"reveal",j:"明らかにする",ex:"The investigation helped to ( ) the cause of the accident."},
+  {e:"sacrifice",j:"犠牲にする",ex:"She was willing to ( ) her free time to help others."},
+  {e:"stimulate",j:"刺激する、促進する",ex:"Exercise can ( ) the production of endorphins."},
+  {e:"strengthen",j:"強化する",ex:"Regular practice will ( ) your English skills."},
+  {e:"submit",j:"提出する",ex:"Please ( ) your application by the end of the month."},
+  {e:"suppress",j:"抑制する、鎮圧する",ex:"He tried to ( ) his anger during the argument."},
+  {e:"transform",j:"変える、変換する",ex:"Technology has ( ) the way we communicate."},
+  {e:"transmitted",j:"伝達する、送信する",ex:"The virus can be ( ) through contact."},
+  {e:"validate",j:"有効にする、確認する",ex:"Please ( ) your ticket before boarding the train."},
+  // ===== 追加バッチ2: 名詞 =====
+  {e:"abundance",j:"豊富さ",ex:"There is an ( ) of food at the festival."},
+  {e:"achievement",j:"業績、達成",ex:"Winning the award was her greatest ( )."},
+  {e:"advantage",j:"利点、優位",ex:"Knowing two languages is a great ( ) in today's world."},
+  {e:"alternative",j:"代替案、別の選択肢",ex:"If the plan fails, we need an ( )."},
+  {e:"ambition",j:"野心、向上心",ex:"His ( ) was to become the best scientist in the world."},
+  {e:"atmosphere",j:"雰囲気、大気",ex:"The restaurant had a warm and friendly ( )."},
+  {e:"attraction",j:"魅力、名所",ex:"The new museum has become a popular ( ) for tourists."},
+  {e:"authority",j:"権威、当局",ex:"The ( ) has issued a warning about the storm."},
+  {e:"barrier",j:"障壁、妨害",ex:"Language can be a ( ) to communication."},
+  {e:"circumstance",j:"状況、事情",ex:"Under normal ( ), the event would last three hours."},
+  {e:"commitment",j:"献身、約束",ex:"Her ( ) to her work impressed everyone."},
+  {e:"community",j:"地域社会、共同体",ex:"The local ( ) came together to rebuild the park."},
+  {e:"consequence",j:"結果、影響",ex:"You must accept the ( ) of your actions."},
+  {e:"contribution",j:"貢献、寄付",ex:"Her ( ) to the project was invaluable."},
+  {e:"controversy",j:"論争、議論",ex:"The new law caused a lot of ( )."},
+  {e:"custom",j:"慣習、習慣",ex:"It's a local ( ) to bow when greeting someone."},
+  {e:"decade",j:"10年間",ex:"The city has changed a lot over the past ( )."},
+  {e:"decline",j:"減少、低下",ex:"There has been a sharp ( ) in the number of visitors."},
+  {e:"diversity",j:"多様性",ex:"The school celebrates cultural ( ) through various events."},
+  {e:"drawback",j:"欠点、不利な点",ex:"The main ( ) of the plan is its high cost."},
+  {e:"economy",j:"経済、節約",ex:"The country's ( ) has been growing steadily."},
+  {e:"emission",j:"排出（物）",ex:"Carbon ( ) from cars contributes to air pollution."},
+  {e:"evidence",j:"証拠",ex:"The police found little ( ) at the crime scene."},
+  {e:"expectation",j:"期待、予想",ex:"She exceeded everyone's ( )."},
+  {e:"exposure",j:"さらされること、露出",ex:"Prolonged ( ) to the sun can damage your skin."},
+  {e:"foundation",j:"基盤、財団",ex:"A strong ( ) in reading is essential for all subjects."},
+  {e:"generation",j:"世代",ex:"Each ( ) faces different challenges."},
+  {e:"habitat",j:"生息地",ex:"Deforestation destroys the natural ( ) of many animals."},
+  {e:"heritage",j:"遺産、伝統",ex:"The building is an important part of our cultural ( )."},
+  {e:"impact",j:"影響、衝突",ex:"The storm had a major ( ) on the local community."},
+  {e:"improvement",j:"改善、向上",ex:"There has been a noticeable ( ) in air quality."},
+  {e:"independence",j:"独立、自立",ex:"She values her ( ) and prefers living alone."},
+  {e:"influence",j:"影響、影響を与える",ex:"Music has a strong ( ) on people's emotions."},
+  {e:"infrastructure",j:"インフラ、基盤設備",ex:"The government is investing in improving the country's ( )."},
+  {e:"innovation",j:"革新、イノベーション",ex:"Technology ( ) has changed the way we live."},
+  {e:"institution",j:"機関、制度",ex:"Universities are important educational ( )."},
+  {e:"interaction",j:"相互作用、交流",ex:"Social ( ) is important for mental health."},
+  {e:"investment",j:"投資",ex:"The company made a large ( ) in new equipment."},
+  {e:"legislation",j:"法律、立法",ex:"New ( ) was passed to protect consumers."},
+  {e:"majority",j:"過半数、大多数",ex:"The ( ) of students preferred the new system."},
+  {e:"mechanism",j:"仕組み、機械装置",ex:"Scientists are studying the ( ) of the disease."},
+  {e:"motivation",j:"動機、やる気",ex:"What is your ( ) for learning English?"},
+  {e:"negotiation",j:"交渉",ex:"After weeks of ( ), a deal was finally reached."},
+  {e:"obstacle",j:"障害、妨げ",ex:"Fear of failure is often the biggest ( ) to success."},
+  {e:"opportunity",j:"機会、チャンス",ex:"Living abroad gave her the ( ) to improve her language skills."},
+  {e:"outcome",j:"結果、成果",ex:"The ( ) of the election surprised everyone."},
+  {e:"participants",j:"参加者（複数）",ex:"All ( ) must register by the end of this week."},
+  {e:"perspective",j:"観点、視野",ex:"Traveling gives you a new ( ) on life."},
+  {e:"pollution",j:"汚染",ex:"Air ( ) is a major problem in many large cities."},
+  {e:"population",j:"人口",ex:"The world ( ) is expected to reach ten billion by 2060."},
+  {e:"poverty",j:"貧困",ex:"Many charities work to fight ( ) around the world."},
+  {e:"priority",j:"優先事項",ex:"Safety should always be the top ( )."},
+  {e:"privilege",j:"特権、特典",ex:"Having access to education is a great ( )."},
+  {e:"progress",j:"進歩、前進",ex:"She has made great ( ) in her studies."},
+  {e:"publication",j:"出版物、公表",ex:"Her first ( ) was a collection of short stories."},
+  {e:"regulation",j:"規制、規則",ex:"The government introduced new ( ) on food labeling."},
+  {e:"reputation",j:"評判、名声",ex:"The restaurant has a ( ) for excellent service."},
+  {e:"resource",j:"資源",ex:"Water is one of our most precious natural ( )."},
+  {e:"responsibility",j:"責任",ex:"It's your ( ) to make sure the work is done correctly."},
+  {e:"shortage",j:"不足、欠乏",ex:"There is a ( ) of skilled workers in the industry."},
+  {e:"solution",j:"解決策、解決法",ex:"Finding a ( ) to this problem will take time."},
+  {e:"statistic",j:"統計",ex:"The latest ( ) show an increase in unemployment."},
+  {e:"strategy",j:"戦略",ex:"We need a new ( ) to attract more customers."},
+  {e:"survey",j:"調査、アンケート",ex:"The company conducted a ( ) to understand customer needs."},
+  {e:"sustainability",j:"持続可能性",ex:"Environmental ( ) is a key concern for businesses today."},
+  {e:"symbol",j:"象徴、記号",ex:"The dove is a ( ) of peace."},
+  {e:"tendency",j:"傾向、癖",ex:"He has a ( ) to procrastinate."},
+  {e:"tension",j:"緊張、張力",ex:"There was a lot of ( ) between the two groups."},
+  {e:"threat",j:"脅威、脅し",ex:"Climate change poses a serious ( ) to our planet."},
+  {e:"tradition",j:"伝統、慣習",ex:"It's a family ( ) to have a big dinner on New Year's Eve."},
+  {e:"transition",j:"移行、変遷",ex:"The country is going through a difficult ( ) period."},
+  {e:"trend",j:"傾向、流行",ex:"The latest ( ) in fashion is to wear oversized clothes."},
+  {e:"variety",j:"多様性、種類",ex:"The shop offers a wide ( ) of products."},
+  {e:"vegetation",j:"植物、植生",ex:"The tropical region is famous for its rich ( )."},
+  {e:"virtue",j:"美徳、長所",ex:"Patience is a ( ) that many people admire."},
+  {e:"vision",j:"ビジョン、視覚",ex:"The CEO shared his ( ) for the company's future."},
+  {e:"volunteers",j:"ボランティア（複数）",ex:"Many ( ) helped clean up the park after the storm."},
+  // ===== 追加バッチ3: 形容詞・副詞 =====
+  {e:"abundant",j:"豊富な",ex:"The region is ( ) in natural resources."},
+  {e:"aggressive",j:"積極的な、攻撃的な",ex:"She took an ( ) approach to solving the problem."},
+  {e:"ambitious",j:"野心的な、意欲的な",ex:"He is very ( ) and always sets high goals for himself."},
+  {e:"ancient",j:"古代の",ex:"The museum displayed ( ) artifacts from Egypt."},
+  {e:"appealing",j:"魅力的な",ex:"The job offer was very ( ), so she accepted it."},
+  {e:"appropriate",j:"適切な",ex:"Please choose ( ) clothing for the ceremony."},
+  {e:"approximately",j:"おおよそ、約",ex:"The journey takes ( ) three hours by train."},
+  {e:"available",j:"利用できる、入手できる",ex:"Tickets are ( ) at the box office."},
+  {e:"average",j:"平均の、普通の",ex:"The ( ) temperature in July is 30 degrees."},
+  {e:"beneficial",j:"有益な、ためになる",ex:"Exercise is ( ) for both physical and mental health."},
+  {e:"challenging",j:"困難な、やりがいのある",ex:"Learning a new language can be ( ), but also rewarding."},
+  {e:"chemical",j:"化学的な、化学物質",ex:"The factory released harmful ( ) into the river."},
+  {e:"commercial",j:"商業的な、コマーシャル",ex:"The area is mainly ( ), with many shops and offices."},
+  {e:"complex",j:"複雑な",ex:"The situation is more ( ) than it first appeared."},
+  {e:"compulsory",j:"義務的な、強制的な",ex:"Education is ( ) for all children up to age sixteen."},
+  {e:"considerable",j:"かなりの",ex:"She put in a ( ) amount of effort to complete the project."},
+  {e:"contemporary",j:"現代の、同時代の",ex:"The gallery focuses on ( ) art."},
+  {e:"critical",j:"批判的な、重要な",ex:"It is ( ) that we act immediately."},
+  {e:"crucial",j:"重要な、決定的な",ex:"This decision is ( ) for the future of the company."},
+  {e:"deliberate",j:"意図的な、故意の",ex:"It was a ( ) attempt to mislead the public."},
+  {e:"dependent",j:"依存している",ex:"Many people are ( ) on their smartphones."},
+  {e:"distinctive",j:"独特の、特徴的な",ex:"The building has a very ( ) architectural style."},
+  {e:"dominant",j:"支配的な、優勢な",ex:"English has become the ( ) language in international business."},
+  {e:"dramatic",j:"劇的な、大幅な",ex:"There has been a ( ) improvement in air quality."},
+  {e:"durable",j:"耐久性のある",ex:"This material is ( ) enough to last for many years."},
+  {e:"economic",j:"経済的な",ex:"The country is facing serious ( ) challenges."},
+  {e:"effective",j:"効果的な",ex:"Exercise is one of the most ( ) ways to reduce stress."},
+  {e:"elderly",j:"高齢の",ex:"The government provides support for ( ) citizens."},
+  {e:"emotional",j:"感情的な、感情に訴える",ex:"She gave an ( ) speech that moved the audience to tears."},
+  {e:"endangered",j:"絶滅の危機に瀕した",ex:"The panda is one of the most ( ) animals in the world."},
+  {e:"environmental",j:"環境の",ex:"The company has adopted a new ( ) policy."},
+  {e:"essential",j:"不可欠な、必須の",ex:"Water is ( ) for all living things."},
+  {e:"ethical",j:"倫理的な",ex:"It is not ( ) to test products on animals."},
+  {e:"exceptional",j:"例外的な、優れた",ex:"She has shown ( ) talent in mathematics."},
+  {e:"excessive",j:"過度な、過剰な",ex:"Drinking ( ) amounts of caffeine can be harmful."},
+  {e:"exclusive",j:"独占的な、高級な",ex:"The hotel is very ( ) and expensive."},
+  {e:"existing",j:"既存の、現在の",ex:"We need to improve the ( ) system."},
+  {e:"extraordinary",j:"並外れた、異常な",ex:"She has an ( ) ability to remember details."},
+  {e:"fundamental",j:"根本的な、基本的な",ex:"There is a ( ) difference between the two approaches."},
+  {e:"genuine",j:"本物の、真の",ex:"His apology seemed ( ) and sincere."},
+  {e:"global",j:"世界的な、地球規模の",ex:"Climate change is a ( ) problem that requires international cooperation."},
+  {e:"gradual",j:"徐々の、段階的な",ex:"There has been a ( ) improvement in the patient's condition."},
+  {e:"harsh",j:"厳しい、過酷な",ex:"The workers faced ( ) conditions in the factory."},
+  {e:"immediate",j:"即時の、直接の",ex:"The disaster required an ( ) response."},
+  {e:"inevitable",j:"避けられない",ex:"Change is ( ) in a rapidly developing world."},
+  {e:"intense",j:"激しい、強烈な",ex:"The competition was very ( )."},
+  {e:"logical",j:"論理的な",ex:"Her explanation was clear and ( )."},
+  {e:"massive",j:"巨大な、大規模な",ex:"The storm caused ( ) damage to the town."},
+  {e:"moderate",j:"穏やかな、適度な",ex:"( ) exercise is better than doing nothing at all."},
+  {e:"mutual",j:"互いの、相互の",ex:"They have a ( ) respect for each other."},
+  {e:"negative",j:"否定的な、マイナスの",ex:"Too much stress can have a ( ) effect on your health."},
+  {e:"neutral",j:"中立の",ex:"The country remained ( ) during the conflict."},
+  {e:"numerous",j:"多数の",ex:"There are ( ) reasons why learning English is important."},
+  {e:"occasionally",j:"時々、たまに",ex:"She ( ) visits her hometown."},
+  {e:"overall",j:"全体的な、概して",ex:"The ( ) quality of the product has improved."},
+  {e:"partial",j:"部分的な",ex:"The surgery was only ( ) successful."},
+  {e:"passive",j:"受動的な",ex:"He tends to be very ( ) in group discussions."},
+  {e:"permanent",j:"永続的な、恒久的な",ex:"She is looking for a ( ) job."},
+  {e:"physical",j:"身体的な、物理的な",ex:"Regular ( ) activity is important for maintaining good health."},
+  {e:"potential",j:"潜在的な、可能性",ex:"She has the ( ) to become a great leader."},
+  {e:"primary",j:"主要な、最初の",ex:"The ( ) goal of the project is to reduce waste."},
+  {e:"primitive",j:"原始的な",ex:"Early humans used ( ) tools made from stone."},
+  {e:"productive",j:"生産的な",ex:"The meeting was very ( ) and we made good decisions."},
+  {e:"progressive",j:"進歩的な",ex:"The school takes a ( ) approach to teaching."},
+  {e:"prominent",j:"目立つ、著名な",ex:"She is a ( ) figure in the world of science."},
+  {e:"psychological",j:"心理的な",ex:"The stress had a serious ( ) impact on her."},
+  {e:"rational",j:"合理的な",ex:"Try to make a ( ) decision based on the facts."},
+  {e:"realistic",j:"現実的な",ex:"We need to set ( ) goals that we can actually achieve."},
+  {e:"relatively",j:"比較的",ex:"The test was ( ) easy compared to last year's."},
+  {e:"relevant",j:"関連のある、適切な",ex:"Please only include information that is ( ) to the topic."},
+  {e:"reluctant",j:"気が進まない",ex:"He was ( ) to admit that he was wrong."},
+  {e:"remarkable",j:"注目に値する、素晴らしい",ex:"She made a ( ) recovery from her illness."},
+  {e:"remote",j:"遠隔の、へんぴな",ex:"The village is located in a very ( ) area."},
+  {e:"renewable",j:"再生可能な",ex:"Solar power is a ( ) source of energy."},
+  {e:"representative",j:"代表的な",ex:"She was chosen as the ( ) for her region."},
+  {e:"rigid",j:"硬直した、厳格な",ex:"The school has ( ) rules about uniforms."},
+  {e:"severe",j:"厳しい、深刻な",ex:"The region suffered ( ) damage from the earthquake."},
+  {e:"stable",j:"安定した",ex:"The economy has been relatively ( ) this year."},
+  {e:"sufficient",j:"十分な",ex:"Make sure you have ( ) time to complete the task."},
+  {e:"temporary",j:"一時的な",ex:"She found a ( ) job while looking for something permanent."},
+  {e:"traditional",j:"伝統的な",ex:"They wore ( ) clothing for the ceremony."},
+  {e:"tragic",j:"悲劇的な",ex:"The accident had a ( ) outcome."},
+  {e:"typical",j:"典型的な",ex:"Heavy rain in June is quite ( ) for this region."},
+  {e:"unconditional",j:"無条件の",ex:"A parent's love is often described as ( )."},
+  {e:"unexpected",j:"予期しない",ex:"The good news came as a completely ( ) surprise."},
+  {e:"universal",j:"普遍的な、全世界的な",ex:"Music is often called a ( ) language."},
+  {e:"urban",j:"都市の",ex:"Many people prefer ( ) life because of the convenience."},
+  {e:"valid",j:"有効な、正当な",ex:"You need a ( ) passport to travel abroad."},
+  {e:"valuable",j:"価値ある、貴重な",ex:"The experience was very ( ) for her career."},
+  {e:"various",j:"様々な",ex:"The store offers ( ) types of products."},
+  {e:"verbal",j:"言葉による、口頭の",ex:"She received ( ) praise from her manager."},
+  {e:"virtual",j:"事実上の、仮想の",ex:"The company held a ( ) meeting online."},
+  {e:"visible",j:"目に見える、明らかな",ex:"The damage to the building was clearly ( )."},
+  {e:"voluntary",j:"自発的な、任意の",ex:"Participation in the program is ( )."},
+  {e:"widespread",j:"広く普及した",ex:"The use of smartphones has become ( )."},
+,
+  {e:"vehicle",j:"乗り物",ex:"Electric ( ) are becoming more common on our roads."},
+  {e:"recommend",j:"〜を勧める",ex:"My doctor ( ) that I exercise at least three times a week."},
+  {e:"improve",j:"〜を改善する",ex:"She worked hard to ( ) her English speaking skills."},
+  {e:"recently",j:"最近",ex:"( ), more people have started working from home."},
+  {e:"customer",j:"顧客",ex:"The company always puts its ( ) first."},
+  {e:"discover",j:"〜を発見する",ex:"Scientists claimed to ( ) a new species of deep-sea fish."},
+  {e:"common",j:"共通の、一般的な",ex:"It is ( ) for students to feel nervous before an exam."},
+  {e:"disturb",j:"〜を妨げる",ex:"Please don't ( ) me while I'm working."},
+  {e:"benefit",j:"利益、恩恵",ex:"Regular exercise brings many health ( )."},
+  {e:"solution",j:"解決策",ex:"Finding a ( ) to this problem will take time."},
+  {e:"inform",j:"〜に知らせる",ex:"Please ( ) the office if you plan to be absent."},
+  {e:"unable",j:"〜できない",ex:"He was ( ) to attend the meeting due to illness."},
+  {e:"disease",j:"病気",ex:"Malaria is a serious ( ) spread by mosquitoes."},
+  {e:"unfortunately",j:"残念ながら",ex:"( ), the event was cancelled due to bad weather."},
+  {e:"device",j:"装置",ex:"This ( ) measures your heart rate and sleep quality."},
+  {e:"attractive",j:"魅力的な",ex:"The job offer was very ( ), so she decided to accept it."},
+  {e:"climate",j:"気候",ex:"The ( ) in the south is much warmer than in the north."},
+  {e:"evidence",j:"証拠",ex:"The police found little ( ) at the crime scene."},
+  {e:"estimate",j:"〜を見積もる",ex:"Can you ( ) how long the project will take?"},
+  {e:"argue",j:"〜と議論する、主張する",ex:"He continued to ( ) that the new policy would hurt the economy."},
+  {e:"meanwhile",j:"その間に",ex:"She cooked dinner; ( ), he set the table."},
+  {e:"entirely",j:"完全に、全く",ex:"I ( ) agree with your point of view."},
+  {e:"publish",j:"〜を出版する",ex:"She managed to ( ) her first novel at the age of twenty-five."},
+  {e:"melt",j:"溶ける",ex:"The ice caps are ( ) faster than ever before."},
+  {e:"expense",j:"費用、出費",ex:"The company paid all travel ( ) for its employees."},
+  {e:"contain",j:"〜を含む",ex:"This product was found to ( ) artificial colors and flavors."},
+  {e:"government",j:"政府",ex:"The ( ) announced new measures to reduce pollution."},
+  {e:"modern",j:"現代的な、近代的な",ex:"The city has a mix of ancient temples and ( ) skyscrapers."},
+  {e:"million",j:"百万",ex:"Over a ( ) people visit the site each year."},
+  {e:"quit",j:"〜をやめる",ex:"She decided to ( ) her job and start her own business."},
+  {e:"scientist",j:"科学者",ex:"The ( ) conducted a series of experiments in the lab."},
+  {e:"foundation",j:"基盤、財団",ex:"A strong ( ) in reading is essential for all subjects."},
+  {e:"remove",j:"〜を取り除く",ex:"Please ( ) your shoes before entering."},
+  {e:"compare",j:"〜を比較する",ex:"Let's ( ) the prices before making a decision."},
+  {e:"profit",j:"利益",ex:"The company made a large ( ) in the first quarter."},
+  {e:"remain",j:"〜のままである",ex:"Despite many setbacks, she seemed to ( ) determined."},
+  {e:"organize",j:"〜を整理する",ex:"She spent the morning ( ) her desk."},
+  {e:"suffer from",j:"〜に苦しむ",ex:"He started to ( ) severe back pain after the accident."},
+  {e:"more and more",j:"ますます多くの",ex:"( ) people are choosing to work from home."},
+  {e:"consume",j:"消費する",ex:"This appliance tends to ( ) a lot of electricity."},
+  {e:"development",j:"発展、開発",ex:"Economic ( ) has improved living standards significantly."},
+  {e:"detect",j:"〜を検出する",ex:"The sensors are able to ( ) even the smallest changes in temperature."},
+  {e:"extremely",j:"非常に",ex:"The exam was ( ) difficult."},
+  {e:"employment",j:"雇用",ex:"The new factory will create hundreds of ( ) opportunities."},
+  {e:"unlike",j:"〜とは違って",ex:"( ) his sister, he enjoys spicy food."},
+  {e:"properly",j:"適切に",ex:"Make sure you dispose of hazardous waste ( )."},
+  {e:"repair",j:"〜を修理する",ex:"The mechanic managed to ( ) the car in less than an hour."},
+  {e:"in addition",j:"加えて",ex:"The hotel has a pool; ( ), it offers free breakfast."},
+  {e:"complicated",j:"複雑な",ex:"The instructions were so ( ) that nobody understood them."},
+  {e:"arrest",j:"〜を逮捕する",ex:"The police moved to ( ) the suspect early this morning."},
+  {e:"betray",j:"〜を裏切る",ex:"He chose to ( ) his friend's trust by revealing the secret."},
+  {e:"survey",j:"調査",ex:"The company conducted a ( ) to understand customer needs."},
+  {e:"affect",j:"〜に影響する",ex:"Stress can ( ) your physical health in many ways."},
+  {e:"consider",j:"〜を考慮する",ex:"Please ( ) all the options before deciding."},
+  {e:"portable",j:"携帯用の",ex:"She bought a ( ) speaker to use at the beach."},
+  {e:"remind",j:"〜に思い出させる",ex:"Could you ( ) me to call the dentist tomorrow?"},
+  {e:"ability",j:"能力",ex:"She has the ( ) to learn new languages very quickly."},
+  {e:"allow",j:"〜を許可する",ex:"The new rules seem to ( ) employees to work from home."},
+  {e:"quality",j:"質",ex:"Good ( ) products don't always have to be expensive."},
+  {e:"construction",j:"建設",ex:"The ( ) of the new bridge is expected to take two years."},
+  {e:"develop",j:"〜を開発する",ex:"The team worked hard to ( ) a new app to help people manage stress."},
+  {e:"permission",j:"許可",ex:"You need ( ) from your manager before taking time off."},
+  {e:"converted",j:"〜を変換する",ex:"The factory was ( ) into luxury apartments."},
+  {e:"resident",j:"居住者",ex:"Local ( ) voted against the new building plan."},
+  {e:"provides",j:"〜を提供する",ex:"The school ( ) free meals for students from low-income families."},
+  {e:"metal",j:"金属",ex:"The sculpture is made entirely of recycled ( )."},
+  {e:"immediately",j:"すぐに",ex:"She ( ) called for an ambulance when she saw the accident."},
+  {e:"predict",j:"〜を予測する",ex:"Scientists ( ) that temperatures will rise by two degrees."},
+  {e:"religion",j:"宗教",ex:"Freedom of ( ) is a basic human right."},
+  {e:"currency",j:"通貨",ex:"The local ( ) can be exchanged at the airport."},
+  {e:"restore",j:"〜を修復する",ex:"The team worked to ( ) the ancient paintings."},
+  {e:"accompany",j:"〜に同行する",ex:"She decided to ( ) her parents to the hospital for the checkup."},
+  {e:"in detail",j:"詳しく",ex:"Please explain your idea ( ) so everyone can understand."},
+  {e:"nevertheless",j:"それにもかかわらず",ex:"He was tired; ( ), he continued to work."},
+  {e:"probably",j:"おそらく",ex:"He will ( ) arrive late—traffic is terrible today."},
+  {e:"in contrast",j:"対照的に",ex:"( ), the second group showed much better results."},
+  {e:"for instance",j:"例えば",ex:"Many things pollute rivers; ( ), plastic waste."},
+  {e:"additionally",j:"さらに",ex:"The hotel is cheap; ( ), it's very conveniently located."},
+  {e:"anxiety",j:"不安",ex:"She felt a great deal of ( ) before the job interview."},
+  {e:"brain",j:"脳",ex:"Exercise is good for both the body and the ( )."},
+  {e:"certain",j:"ある、確かな",ex:"A ( ) amount of stress is normal in daily life."},
+  {e:"pain",j:"痛み",ex:"She felt a sharp ( ) in her knee after the run."},
+  {e:"stare at",j:"〜をじっと見る",ex:"It's considered rude to ( ) strangers in some cultures."},
+  {e:"involve",j:"〜を含む",ex:"The project seemed to ( ) several different teams working together."},
+  {e:"accuracy",j:"正確さ",ex:"The report was praised for its ( ) and clarity."},
+  {e:"sympathy",j:"同情",ex:"She expressed her deep ( ) for those affected by the disaster."},
+  {e:"flexibility",j:"柔軟性",ex:"The schedule has some ( ), so we can adjust if needed."},
+  {e:"approach",j:"アプローチ、近づく",ex:"We need a fresh ( ) to solve this problem."},
+  {e:"manage",j:"〜をうまくやる",ex:"She was able to ( ) to finish the project on time despite many obstacles."},
+  {e:"measure",j:"〜を測る、措置",ex:"New ( ) were introduced to improve workplace safety."},
+  {e:"waste",j:"無駄にする、廃棄物",ex:"Don't ( ) food—think of those who go hungry."},
+  {e:"fertilizer",j:"肥料",ex:"Farmers use ( ) to help crops grow faster."},
+  {e:"adopt",j:"〜を採用する",ex:"Many companies have ( ) flexible working hours."},
+  {e:"raise",j:"〜を高める、育てる",ex:"She managed to ( ) three children while working full-time."},
+  {e:"avoid",j:"〜を避ける",ex:"He tried to ( ) eating junk food to stay healthy."},
+  {e:"participate",j:"参加する",ex:"All students are encouraged to ( ) in class discussions."},
+  {e:"tolerate",j:"〜を容認する",ex:"The company does not ( ) any form of discrimination."},
+  {e:"journey",j:"旅、道のり",ex:"The ( ) from London to Edinburgh takes about four hours."},
+  {e:"production",j:"生産",ex:"The factory increased ( ) to meet growing demand."},
+  {e:"cell",j:"細胞",ex:"Scientists grew human ( ) in the laboratory."},
+  {e:"complete",j:"〜を完成させる",ex:"She managed to ( ) the marathon in under four hours."},
+  {e:"annually",j:"毎年",ex:"The company reports its earnings ( )."},
+  {e:"psychologist",j:"心理学者",ex:"She consulted a ( ) to help manage her stress."},
+  {e:"demand",j:"需要",ex:"( ) for electric vehicles has increased significantly."},
+  {e:"respond",j:"応答する",ex:"She did not ( ) to any of his messages."},
+  {e:"valuable",j:"価値ある",ex:"The experience was very ( ) for her career."},
+  {e:"witness",j:"目撃者、〜を目撃する",ex:"Several ( ) saw the accident happen."},
+  {e:"poverty",j:"貧困",ex:"Many charities work to fight ( ) around the world."},
+  {e:"embarrass",j:"〜を恥ずかしい思いをさせる",ex:"His comment ( ) her in front of everyone."},
+  {e:"enlarge",j:"〜を拡大する",ex:"They decided to ( ) the kitchen when they renovated."},
+  {e:"ingredient",j:"材料",ex:"Always check the ( ) list if you have food allergies."},
+  {e:"overall",j:"全体的な",ex:"The ( ) results were very encouraging."},
+  {e:"spend",j:"〜を過ごす、費やす",ex:"He tends to ( ) most of his weekends gardening."},
+  {e:"purchase",j:"〜を購入する",ex:"You can ( ) tickets online or at the box office."},
+  {e:"brilliant",j:"優れた、輝かしい",ex:"She gave a ( ) performance that received a standing ovation."},
+  {e:"revolution",j:"革命",ex:"The industrial ( ) transformed the way goods were produced."},
+  {e:"previously",j:"以前に",ex:"She had ( ) worked as a nurse before becoming a doctor."},
+  {e:"feature",j:"特徴",ex:"The new phone was designed to ( ) a much larger screen."},
+  {e:"excuse",j:"言い訳",ex:"He made up an ( ) for arriving late."},
+  {e:"decreases",j:"減少する",ex:"The number of students ( ) every year."},
+  {e:"frequent",j:"頻繁な",ex:"He is a ( ) visitor to the library."},
+  {e:"theory",j:"理論",ex:"Darwin's ( ) of evolution changed our understanding of life."},
+  {e:"gravity",j:"重力",ex:"( ) keeps the planets in orbit around the sun."},
+  {e:"translate",j:"〜を翻訳する",ex:"She managed to ( ) the article from French into English."},
+  {e:"equipment",j:"設備",ex:"The hospital received new medical ( ) last month."},
+  {e:"rare",j:"まれな",ex:"This type of bird is very ( ) in this part of the world."},
+  {e:"decided",j:"〜を決める",ex:"He ( ) to change careers and study law."},
+  {e:"amount",j:"量",ex:"A large ( ) of data was collected during the research."},
+  {e:"constant",j:"絶え間ない",ex:"The ( ) noise from the road made it hard to sleep."},
+  {e:"available",j:"利用できる",ex:"Tickets are ( ) at the box office or online."},
+  {e:"particular",j:"特定の、特に",ex:"She has a ( ) interest in ancient history."},
+  {e:"locate",j:"〜の場所を確かめる",ex:"The app helps you ( ) the nearest pharmacy."},
+  {e:"recommendation",j:"勧め、推薦",ex:"I followed my doctor's ( ) and got more exercise."},
+  {e:"politely",j:"礼儀正しく",ex:"She ( ) declined the invitation."},
+  {e:"accidentally",j:"偶然に",ex:"He ( ) sent the email to the wrong person."},
+  {e:"satisfy",j:"〜を満足させる",ex:"The results did not ( ) the investors."},
+  {e:"chemical",j:"化学物質の",ex:"The factory was releasing harmful ( ) into the river."},
+  {e:"attach",j:"〜を添付する",ex:"Please ( ) a copy of your CV to the application."},
+  {e:"permit",j:"〜を許可する",ex:"Photography is not ( ) inside the museum."},
+  {e:"prevent",j:"〜を防ぐ",ex:"Regular exercise can ( ) many chronic diseases."},
+  {e:"increase",j:"増加する",ex:"The population of the city continues to ( ) each year."},
+  {e:"luxury",j:"贅沢",ex:"A weekend at a five-star hotel is a real ( )."},
+  {e:"decade",j:"10年間",ex:"The city has changed a lot over the past ( )."},
+  {e:"enormous",j:"巨大な",ex:"The project required an ( ) amount of time and money."},
+  {e:"replacement",j:"交換品",ex:"The warranty covers any ( ) parts for two years."},
+  {e:"confuse",j:"〜を混乱させる",ex:"The directions seemed to ( ) everyone in the group."},
+  {e:"produce",j:"〜を生産する",ex:"This region is known to ( ) some of the best coffee in the world."},
+  {e:"economy",j:"経済",ex:"The country's ( ) has been growing steadily."},
+  {e:"celebrate",j:"〜を祝う",ex:"They decided to ( ) their anniversary with a special dinner."},
+  {e:"imitate",j:"〜を模倣する",ex:"Children often ( ) the behavior of adults around them."},
+  {e:"assignment",j:"課題",ex:"She stayed up late to finish her history ( )."},
+  {e:"certainly",j:"確かに",ex:"I will ( ) come to the party."},
+  {e:"behave",j:"振る舞う",ex:"Children are expected to ( ) well in public."},
+  {e:"instrument",j:"楽器",ex:"She has been playing the ( ) since she was five."},
+  {e:"temporary",j:"一時的な",ex:"She found a ( ) job while looking for something permanent."},
+  {e:"arrange",j:"〜を手配する",ex:"Can you ( ) transport to the airport?"},
+  {e:"occasion",j:"機会、場合",ex:"This is a formal ( ), so please dress accordingly."},
+  {e:"promote",j:"〜を促進する",ex:"The campaign aims to ( ) healthier eating habits."},
+  {e:"electricity",j:"電気",ex:"The storm cut off ( ) to thousands of homes."},
+  {e:"composer",j:"作曲家",ex:"Beethoven was one of the greatest ( ) in history."},
+  {e:"creature",j:"生き物",ex:"The ocean is home to many fascinating ( )."},
+  {e:"substance",j:"物質",ex:"The scientist analyzed the unknown ( ) in the lab."},
+  {e:"graduate",j:"卒業する",ex:"She managed to ( ) from university with a degree in engineering."},
+  {e:"furniture",j:"家具",ex:"They bought new ( ) for the living room."},
+  {e:"medicine",j:"薬、医学",ex:"She took some ( ) for her headache."},
+  {e:"sufficient",j:"十分な",ex:"Make sure you have ( ) time to complete the task."},
+  {e:"directly",j:"直接に",ex:"You should speak ( ) to the manager about the issue."},
+  {e:"historic",j:"歴史的な",ex:"The signing of the agreement was a ( ) moment."},
+  {e:"barely",j:"かろうじて",ex:"She ( ) had time to eat breakfast before rushing out."},
+  {e:"delete",j:"〜を削除する",ex:"You can ( ) any files you no longer need."},
+  {e:"urgent",j:"緊急の",ex:"There was an ( ) message waiting for her when she arrived."},
+  {e:"generous",j:"寛大な",ex:"He was very ( ) with his time and always helped others."},
+  {e:"cruel",j:"残酷な",ex:"It is ( ) to keep animals in small cages."},
+  {e:"celebration",j:"祝賀",ex:"The ( ) lasted well into the night."},
+  {e:"concept",j:"概念",ex:"The ( ) of democracy is based on equal rights."},
+  {e:"whisper",j:"ささやく",ex:"She decided to ( ) the answer into his ear so no one else could hear."},
+  {e:"deposit",j:"預金、保証金",ex:"You need to pay a ( ) of two hundred dollars to book the venue."},
+  {e:"apology",j:"謝罪",ex:"She sent a written ( ) for missing the meeting."},
+  {e:"deceive",j:"〜をだます",ex:"He tried to ( ) his colleagues about his qualifications."},
+  {e:"established",j:"〜を設立する",ex:"The organization was ( ) to help homeless people."},
+  {e:"endure",j:"〜に耐える",ex:"They ( ) many hardships during the long journey."},
+  {e:"dispose",j:"〜を処分する",ex:"Please ( ) of your rubbish in the bins provided."},
+  {e:"statistics",j:"統計",ex:"The latest ( ) show a rise in unemployment."},
+  {e:"compromise",j:"妥協する",ex:"They ( ) and agreed to meet halfway."},
+  {e:"terminal",j:"末期の、ターミナル",ex:"He was diagnosed with a ( ) illness."},
+  {e:"formation",j:"形成、隊形",ex:"The clouds had an unusual ( ) in the sky."},
+  {e:"quarrel",j:"口論",ex:"They had a ( ) over something quite minor."},
+  {e:"handle",j:"〜を扱う",ex:"She is very good at ( ) difficult situations."},
+  {e:"condition",j:"状態、条件",ex:"The patient is in a stable ( ) after surgery."},
+  {e:"punish",j:"〜を罰する",ex:"The school tends to ( ) students who break the rules."},
+  {e:"despite",j:"〜にもかかわらず",ex:"( ) the rain, they decided to go hiking."},
+  {e:"worth",j:"〜の価値がある",ex:"Is the film ( ) watching?"},
+  {e:"spread",j:"広がる",ex:"News of the discovery seemed to ( ) quickly through the internet."},
+  {e:"confident",j:"自信がある",ex:"She felt ( ) about her ability to pass the exam."},
+  {e:"sight",j:"視力、景色",ex:"The view from the top was a breathtaking ( )."},
+  {e:"electric",j:"電気の",ex:"She drives an ( ) car to reduce her carbon footprint."},
+  {e:"receive",j:"〜を受け取る",ex:"She was thrilled to ( ) the award."},
+  {e:"related to",j:"〜に関連した",ex:"This finding is closely ( ) the research published last year."},
+  {e:"fear",j:"恐れる、恐れ",ex:"She has a great ( ) of heights."},
+  {e:"active",j:"活動的な",ex:"He leads a very ( ) lifestyle."},
+  {e:"degree",j:"程度、学位",ex:"She completed her ( ) in just three years."},
+  {e:"effect",j:"影響、効果",ex:"The new law had a positive ( ) on air quality."},
+  {e:"cause",j:"原因、〜を引き起こす",ex:"Scientists are investigating the ( ) of the disease."},
+  {e:"particularly",j:"特に",ex:"She is ( ) good at speaking in public."},
+  {e:"immune",j:"免疫がある",ex:"Some people are ( ) to certain viruses."},
+  {e:"disorder",j:"障害、混乱",ex:"He was diagnosed with an anxiety ( )."},
+  {e:"mental",j:"精神的な",ex:"Good ( ) health is just as important as physical health."},
+  {e:"physical",j:"身体的な",ex:"She is in excellent ( ) condition for her age."},
+  {e:"opportunity",j:"機会",ex:"This job is a great ( ) to develop new skills."},
+  {e:"characteristic",j:"特徴",ex:"Creativity is the most important ( ) of a great leader."},
+  {e:"civilization",j:"文明",ex:"Ancient Egypt was one of the world's earliest ( )."},
+  {e:"represent",j:"〜を代表する",ex:"She was chosen to ( ) her country at the international competition."},
+  {e:"collapsed",j:"崩壊する",ex:"The old building ( ) during the earthquake."},
+  {e:"insult",j:"〜を侮辱する",ex:"He felt deeply ( ) by her comments."},
+  {e:"punctual",j:"時間に正確な",ex:"It's important to be ( ) for job interviews."},
+  {e:"frightened",j:"怖がっている",ex:"The child was ( ) by the loud thunder."},
+  {e:"guarantee",j:"〜を保証する",ex:"The company promised to ( ) delivery within 48 hours."},
+  {e:"blame",j:"〜を非難する",ex:"Don't ( ) yourself—it wasn't your fault."},
+  {e:"anniversary",j:"記念日",ex:"They celebrated their tenth wedding ( )."},
+  {e:"violate",j:"〜に違反する",ex:"He was found to ( ) the terms of his contract."},
+  {e:"delayed",j:"遅らせる、遅延",ex:"The flight was ( ) by two hours due to bad weather."},
+  {e:"surrounded",j:"〜を囲む",ex:"The house is ( ) by a beautiful garden."},
+  {e:"immigrate",j:"移住する",ex:"His family ( ) to Australia in the 1980s."},
+  {e:"correct",j:"正しい、〜を直す",ex:"Please ( ) any mistakes before submitting the essay."},
+  {e:"landscape",j:"風景",ex:"The mountain ( ) was absolutely stunning."},
+  {e:"instinct",j:"本能",ex:"Her ( ) told her that something was wrong."},
+  {e:"policy",j:"政策",ex:"The company has a strict ( ) against discrimination."},
+  {e:"obviously",j:"明らかに",ex:"She was ( ) nervous during the interview."},
+  {e:"strangely",j:"奇妙に",ex:"He ( ) didn't mention the accident at all."},
+  {e:"chase",j:"〜を追いかける",ex:"The dog started to ( ) the ball across the garden."},
+  {e:"pour",j:"〜を注ぐ",ex:"Can you ( ) me a glass of water?"},
+  {e:"issue",j:"問題、発行する",ex:"The main ( ) with the plan is its high cost."},
+  {e:"elderly",j:"高齢の",ex:"The charity provides meals for ( ) people in the community."},
+  {e:"brightness",j:"明るさ",ex:"You can adjust the ( ) of the screen on your device."},
+  {e:"indoor",j:"屋内の",ex:"She prefers ( ) activities like reading and painting."},
+  {e:"senior",j:"上級の、高齢の",ex:"She is a ( ) manager at the company."},
+  {e:"natural",j:"自然の",ex:"She has a ( ) talent for languages."},
+  {e:"specific",j:"具体的な",ex:"Could you give me a ( ) example of what you mean?"},
+  {e:"advantage",j:"利点",ex:"Knowing a second language is a real ( ) in today's world."},
+  {e:"copyright",j:"著作権",ex:"Copying this content without permission violates ( )."},
+  {e:"charge",j:"料金、〜を請求する",ex:"There is an extra ( ) for checked baggage."},
+  {e:"director",j:"監督、重役",ex:"The ( ) gave a speech at the opening ceremony."},
+  {e:"actually",j:"実際に",ex:"He looks young, but he is ( ) over fifty."},
+  {e:"compose",j:"〜を構成する、作曲する",ex:"She managed to ( ) her first symphony at the age of seventeen."},
+  {e:"greet",j:"〜に挨拶する",ex:"The host would ( ) each guest warmly at the door."},
+  {e:"environmental",j:"環境の",ex:"The company has adopted a new ( ) policy."},
+  {e:"garbage",j:"ゴミ",ex:"Don't leave ( ) on the street—use the bins."},
+  {e:"environmentally",j:"環境的に",ex:"We should try to be more ( ) friendly in our daily lives."},
+  {e:"council",j:"評議会、議会",ex:"The local ( ) voted to approve the new park."},
+  {e:"fuel",j:"燃料",ex:"The car needs ( )—we're almost out."},
+  {e:"process",j:"過程、〜を処理する",ex:"The application ( ) takes about two weeks."},
+  {e:"fossil fuel",j:"化石燃料",ex:"We need to reduce our dependence on ( )."},
+  {e:"harm",j:"危害、〜に害を与える",ex:"Smoking can ( ) your health seriously."},
+  {e:"unbelievable",j:"信じられない",ex:"The speed of technological change is ( )."},
+  {e:"innocent",j:"無実の",ex:"The court found him ( ) of all charges."},
+  {e:"arrogant",j:"傲慢な",ex:"He was too ( ) to ask for help when he needed it."},
+  {e:"harbor",j:"港、〜を心に抱く",ex:"The ship arrived safely at the ( )."},
+  {e:"temper",j:"気性、怒り",ex:"She has a quick ( ) and gets angry easily."},
+  {e:"legend",j:"伝説",ex:"The ( ) says that a dragon once lived in this cave."},
+  {e:"fairly",j:"かなり、公平に",ex:"The work was ( ) easy once I understood the instructions."},
+  {e:"vague",j:"曖昧な",ex:"His answer was too ( )—I need more details."},
+  {e:"harvest",j:"収穫",ex:"The farmers were preparing for the autumn ( )."},
+  {e:"assistance",j:"援助",ex:"She offered her ( ) to the elderly passenger."},
+  {e:"conflict",j:"対立、紛争",ex:"The two sides could not resolve their ( )."},
+  {e:"planet",j:"惑星",ex:"Scientists are exploring whether other ( ) could support life."},
+  {e:"ruin",j:"〜を台無しにする",ex:"The rain seemed to ( ) our picnic plans completely."},
+  {e:"launch",j:"〜を開始する",ex:"The company is planning to ( ) a new product next spring."},
+  {e:"withdraw",j:"〜を取り出す、撤退する",ex:"She decided to ( ) some money from the ATM."},
+  {e:"refuse",j:"〜を断る",ex:"He continued to ( ) to answer any questions about his past."},
+  {e:"embrace",j:"〜を受け入れる、抱きしめる",ex:"She was willing to ( ) the opportunity to study abroad."},
+  {e:"overtake",j:"〜を追い越す",ex:"The car began to ( ) the truck on the highway."},
+  {e:"restricted",j:"〜を制限する",ex:"Access to the building is ( ) to authorized personnel."},
+  {e:"instruction",j:"指示",ex:"Follow the ( ) carefully to assemble the furniture."},
+  {e:"stock",j:"在庫、株",ex:"The store is out of ( ) until next week."},
+  {e:"competitor",j:"競合相手",ex:"The company is constantly looking for ways to outperform its ( )."},
+  {e:"spectator",j:"観客",ex:"Thousands of ( ) watched the match from the stands."},
+  {e:"explorer",j:"探検家",ex:"The ( ) discovered the ancient ruins in the jungle."},
+  {e:"equal",j:"平等な、〜に等しい",ex:"Everyone deserves ( ) treatment under the law."},
+  {e:"solve",j:"〜を解く",ex:"It took hours to ( ) the complex math problem."},
+  {e:"childhood",j:"幼少期",ex:"She had a very happy ( ) in the countryside."},
+  {e:"sustainable",j:"持続可能な",ex:"We need to find ( ) solutions to environmental problems."},
+  {e:"leftover",j:"残り物",ex:"She made soup with the ( ) vegetables from last night."},
+  {e:"because of",j:"〜のために",ex:"The event was cancelled ( ) bad weather."},
+  {e:"efficiency",j:"効率性",ex:"The new system improved workplace ( ) significantly."},
+  {e:"arrangement",j:"手配、配置",ex:"She made all the ( ) for the event herself."},
+  {e:"treat",j:"〜を扱う、治療する",ex:"The doctor decided to ( ) her for a minor infection."},
+  {e:"muscle",j:"筋肉",ex:"Regular exercise helps build strong ( )."},
+  {e:"aspect",j:"側面",ex:"This is just one ( ) of a very complex issue."},
+  {e:"content",j:"内容、満足している",ex:"She seemed ( ) with the outcome of the meeting."},
+  {e:"prescription",j:"処方箋",ex:"You need a ( ) from a doctor to get that medicine."},
+  {e:"anxious",j:"不安な",ex:"She felt ( ) about the results of the test."},
+  {e:"ancient",j:"古代の",ex:"The museum displays ( ) artifacts from around the world."},
+  {e:"generously",j:"惜しみなく",ex:"He ( ) donated his time to help the community."},
+  {e:"literature",j:"文学",ex:"She studied ( ) at university and loves classic novels."},
+  {e:"deadline",j:"締め切り",ex:"The ( ) for the report is next Friday."},
+  {e:"exception",j:"例外",ex:"All students must attend, with no ( )."},
+  {e:"temporarily",j:"一時的に",ex:"The road is ( ) closed for repairs."},
+  {e:"funded",j:"資金、〜に資金を提供する",ex:"The project is ( ) by a charitable organization."},
+  {e:"accomplish",j:"〜を成し遂げる",ex:"She seemed to ( ) more in one year than most people do in five."},
+  {e:"introduce",j:"〜を導入する、紹介する",ex:"The school decided to ( ) a new homework policy last term."},
+  {e:"overlap",j:"重なり合う",ex:"The two meetings ( ), so I had to choose one to skip."},
+  {e:"identify",j:"〜を特定する",ex:"Police were able to ( ) the suspect from the CCTV footage."},
+  {e:"collaboration",j:"協力、共同作業",ex:"The project was the result of close ( ) between two universities."},
+  {e:"detective",j:"探偵",ex:"The ( ) spent weeks investigating the case."},
+  {e:"modify",j:"〜を修正する",ex:"The engineers decided to ( ) the design to improve safety."},
+  {e:"frequently",j:"頻繁に",ex:"She ( ) visits her grandmother on weekends."},
+  {e:"emotionally",j:"感情的に",ex:"The film was very ( ) moving."},
+  {e:"evaluate",j:"〜を評価する",ex:"Teachers regularly ( ) students' progress."},
+  {e:"defend",j:"〜を守る",ex:"She continued to ( ) her position confidently during the debate."},
+  {e:"district",j:"地区",ex:"This is one of the most popular tourist ( ) in the city."},
+  {e:"purpose",j:"目的",ex:"The ( ) of this meeting is to discuss the budget."},
+  {e:"prospect",j:"見込み、展望",ex:"The ( ) of a pay rise motivated the entire team."},
+  {e:"victim",j:"被害者",ex:"The organization supports ( ) of domestic violence."},
+  {e:"distant",j:"遠い",ex:"She heard a ( ) sound coming from the forest."},
+  {e:"various",j:"様々な",ex:"The museum has ( ) exhibits from different historical periods."},
+  {e:"visible",j:"目に見える",ex:"The damage to the roof was clearly ( ) from the street."},
+  {e:"wrap",j:"〜を包む",ex:"She carefully ( ) the gift in colorful paper."},
+  {e:"dig",j:"〜を掘る",ex:"The workers began to ( ) a deep hole for the foundation."},
+  {e:"angle",j:"角度、観点",ex:"Try to look at the problem from a different ( )."},
+  {e:"payment",j:"支払い",ex:"Please make the ( ) by bank transfer."},
+  {e:"in practice",j:"実際には",ex:"The plan sounds good, but ( ) it may not work."},
+  {e:"once",j:"一度、かつて",ex:"( ) you understand the rule, it becomes easy."},
+  {e:"publishers",j:"出版社（複数）",ex:"She sent her manuscript to several ( ) before one accepted it."},
+  {e:"dizzy",j:"めまいがする",ex:"She felt ( ) after standing up too quickly."},
+  {e:"be pleased with",j:"〜に満足している",ex:"The manager ( ) the team's performance very much.",a:"was pleased with"},
+  {e:"postponed",j:"〜を延期する",ex:"The meeting was ( ) until next week."},
+  {e:"justify",j:"〜を正当化する",ex:"He tried to ( ) his decision with several arguments."},
+  {e:"fulfill",j:"〜を果たす、満たす",ex:"She managed to ( ) all the requirements for the position."},
+  {e:"influence",j:"〜に影響を与える",ex:"Advertising strongly ( ) consumer choices."},
+  {e:"capacity",j:"容量、能力",ex:"The stadium has a ( ) of fifty thousand people."},
+  {e:"continent",j:"大陸",ex:"Africa is the second largest ( ) in the world."},
+  {e:"industry",j:"産業",ex:"The tourism ( ) is recovering after the pandemic."},
+  {e:"surface",j:"表面",ex:"The ( ) of the lake was perfectly calm."},
+  {e:"doubtfully",j:"疑わしそうに",ex:"She looked at the contract ( )."},
+  {e:"permanently",j:"永続的に",ex:"The injury left him ( ) disabled."},
+  {e:"sensitive",j:"敏感な",ex:"She is very ( ) to criticism."},
+  {e:"peaceful",j:"平和な",ex:"The village had a ( ) atmosphere in the early morning."},
+  {e:"medical",j:"医学的な",ex:"She is receiving ( ) treatment for her condition."},
+  {e:"critics",j:"批評家",ex:"The film received mixed reviews from ( )."},
+  {e:"obstacle",j:"障害",ex:"Fear of failure is often the biggest ( ) to success."},
+  {e:"admit",j:"〜を認める",ex:"He finally ( ) that he had made a mistake."},
+  {e:"react",j:"反応する",ex:"She didn't know how to ( ) when she heard the news."},
+  {e:"succeed",j:"成功する",ex:"Hard work and determination helped her ( )."},
+  {e:"disappear",j:"消える",ex:"The magician made the coin ( )."},
+  {e:"be familiar with",j:"〜をよく知っている",ex:"Are you ( ) this type of problem?",a:"familiar with"},
+  {e:"beyond",j:"〜を超えて",ex:"The results were ( ) everyone's expectations."},
+  {e:"observe",j:"〜を観察する",ex:"Scientists ( ) the behavior of the animals for several weeks."},
+  {e:"participants",j:"参加者（複数）",ex:"All ( ) must register before the deadline."},
+  {e:"tight",j:"きつい、厳しい",ex:"The schedule is very ( )—we have no room for delays."},
+  {e:"be known for",j:"〜で知られている",ex:"Japan ( ) its high-speed trains and beautiful temples.",a:"is known for"},
+  {e:"social",j:"社会的な",ex:"( ) media has changed the way we communicate."},
+  {e:"reliable",j:"信頼できる",ex:"She is a very ( ) employee who always meets deadlines."},
+  {e:"stable",j:"安定した",ex:"The patient's condition is now ( )."},
+  {e:"transport",j:"〜を輸送する",ex:"The company tends to ( ) goods across the country by rail."},
+  {e:"precious",j:"貴重な",ex:"Clean water is one of our most ( ) resources."},
+  {e:"vaccine",j:"ワクチン",ex:"The ( ) was developed in record time."},
+  {e:"illness",j:"病気",ex:"She missed a week of school due to ( )."},
+  {e:"checkup",j:"健康診断",ex:"I have a medical ( ) scheduled for next month."},
+  {e:"temperature",j:"気温、体温",ex:"The ( ) dropped sharply overnight."},
+  {e:"inconvenience",j:"不便",ex:"We apologize for any ( ) caused by the delay."},
+  {e:"unusually",j:"異常に",ex:"It was ( ) cold for this time of year."},
+  {e:"determine",j:"〜を決定する",ex:"The investigation will ( ) the cause of the accident."},
+  {e:"progress",j:"進歩",ex:"She has made remarkable ( ) in her studies this year."},
+  {e:"offensive",j:"不快な、攻撃的な",ex:"Some people found his comments ( )."},
+  {e:"abrupt",j:"突然の",ex:"His ( ) resignation surprised everyone."},
+  {e:"familiar",j:"見覚えのある、よく知っている",ex:"Her face looked ( ) but I couldn't remember her name."},
+  {e:"publicity",j:"宣伝",ex:"The product launch received a lot of positive ( )."},
+  {e:"separation",j:"分離、別離",ex:"The ( ) of families during the conflict was heartbreaking."},
+  {e:"reuse",j:"再利用する",ex:"Try to ( ) bags and containers instead of throwing them away."},
+  {e:"strike",j:"〜に打撃を与える、ストライキ",ex:"Workers went on ( ) to demand better pay."},
+  {e:"protest",j:"抗議する",ex:"Hundreds of people gathered to ( ) against the new law."},
+  {e:"illustrate",j:"〜を説明する",ex:"She used diagrams to ( ) her point more clearly."},
+  {e:"voluntarily",j:"自発的に",ex:"He ( ) gave up his seat for the elderly passenger."},
+  {e:"consciously",j:"意識的に",ex:"She ( ) made an effort to eat more healthily."},
+  {e:"approximately",j:"おおよそ",ex:"The journey takes ( ) three hours by car."},
+  {e:"peacefully",j:"平和的に",ex:"The dispute was resolved ( ) through negotiation."},
+  {e:"burden",j:"負担",ex:"The tax increase placed an extra ( ) on low-income families."},
+  {e:"voyage",j:"航海",ex:"The ship set off on a long ( ) across the Pacific."},
+  {e:"envy",j:"うらやましがる、嫉妬",ex:"She couldn't help but ( ) her colleague's success."},
+  {e:"exaggerate",j:"〜を誇張する",ex:"Don't ( )—it wasn't that bad."},
+  {e:"matter",j:"重要である、問題",ex:"It doesn't ( ) what other people think."},
+  {e:"individual",j:"個人の、個人",ex:"Every ( ) has the right to express their opinion."},
+  {e:"transportation",j:"交通手段",ex:"Public ( ) in this city is excellent."},
+  {e:"recognize",j:"〜を認識する",ex:"I didn't ( ) her at first—she had changed a lot."},
+  {e:"treatment",j:"治療",ex:"The patient responded well to the ( )."},
+  {e:"fee",j:"料金",ex:"There is a small ( ) for using the swimming pool."},
+  {e:"current",j:"現在の",ex:"What is the ( ) status of the project?"},
+  {e:"renew",j:"〜を更新する",ex:"Don't forget to ( ) your passport before it expires."},
+  {e:"unexpected",j:"予期しない",ex:"The news came as a completely ( ) surprise."},
+  {e:"economic",j:"経済的な",ex:"The country is facing serious ( ) challenges."},
+  {e:"breath",j:"呼吸、息",ex:"She took a deep ( ) before starting her speech."},
+  {e:"humidity",j:"湿度",ex:"High ( ) makes hot weather feel even more uncomfortable."},
+  {e:"ceiling",j:"天井",ex:"The ( ) of the cathedral was decorated with paintings."},
+  {e:"sculpture",j:"彫刻",ex:"The park has several beautiful stone ( )."},
+  {e:"exact",j:"正確な",ex:"Can you give me the ( ) time the meeting starts?"},
+  {e:"produce",j:"〜を生産する",ex:"This region is known to ( ) a quarter of the country's wheat."},
+  {e:"research",j:"研究",ex:"The team published the results of their ( ) in a scientific journal."},
+  {e:"relatives",j:"親戚（複数）",ex:"Several ( ) came from overseas for the wedding."},
+  {e:"poison",j:"毒",ex:"The berries are beautiful but contain a dangerous ( )."},
+  {e:"completely",j:"完全に",ex:"She was ( ) exhausted after the marathon."},
+  {e:"absorb",j:"〜を吸収する",ex:"The sponge tends to ( ) water quickly."},
+  {e:"feed",j:"〜に食事を与える",ex:"Remember to ( ) the cat while we're away."},
+  {e:"effective",j:"効果的な",ex:"This is a very ( ) method for learning vocabulary."},
+  {e:"container",j:"容器",ex:"Put the leftovers in a ( ) and store in the fridge."},
+  {e:"dedicate",j:"〜を捧げる、専念する",ex:"She chose to ( ) years of her life to the project."},
+  {e:"abandon",j:"〜を捨てる",ex:"They had to ( ) their car when it broke down."},
+  {e:"amuse",j:"〜を楽しませる",ex:"The clown seemed to ( ) the children with his tricks."},
+  {e:"range",j:"範囲、及ぶ",ex:"Prices ( ) from ten to one hundred dollars."},
+  {e:"revenge",j:"復讐",ex:"He swore to take ( ) on those who had wronged him."},
+  {e:"popularity",j:"人気",ex:"Social media has increased the ( ) of online shopping."},
+  {e:"delicate",j:"繊細な",ex:"The surgeon performed a very ( ) operation."},
+  {e:"border",j:"国境",ex:"The refugees crossed the ( ) in search of safety."},
+  {e:"habit",j:"習慣",ex:"It's a good ( ) to read before going to bed."},
+  {e:"interrupt",j:"〜を中断させる",ex:"I'm sorry to ( ), but there's an urgent call for you."},
+  {e:"persuade",j:"〜を説得する",ex:"She managed to ( ) him to see a doctor."},
+  {e:"examine",j:"〜を調べる",ex:"The doctor began to ( ) the patient carefully."},
+  {e:"substitute",j:"代替物、〜の代わりをする",ex:"Is there a healthy ( ) for sugar in this recipe?"},
+  {e:"peel",j:"〜の皮をむく",ex:"( ) the potatoes before boiling them."},
+  {e:"hospitality",j:"もてなし",ex:"The ( ) shown by the local people was remarkable."},
+  {e:"tragedy",j:"悲劇",ex:"The accident was a terrible ( ) for the whole community."},
+  {e:"instruct",j:"〜に指示する",ex:"She offered to ( ) the team on how to use the new software."},
+  {e:"gather",j:"集まる、〜を集める",ex:"The family would ( ) around the table for dinner."},
+  {e:"alternative",j:"代替の",ex:"Is there an ( ) route we can take?"},
+  {e:"depression",j:"うつ病、不景気",ex:"She was diagnosed with ( ) and began receiving treatment."},
+  {e:"invent",j:"〜を発明する",ex:"Who ( ) the telephone?"},
+  {e:"encourage",j:"〜を励ます",ex:"The teacher would ( ) all students to participate."},
+  {e:"rarely",j:"めったに〜ない",ex:"She ( ) eats junk food."},
+  {e:"digest",j:"〜を消化する",ex:"Some foods are harder to ( ) than others."},
+  {e:"vocabulary",j:"語彙",ex:"Building your ( ) is key to improving your English."},
+  {e:"complex",j:"複雑な",ex:"The problem is more ( ) than it first appeared."},
+  {e:"strengthen",j:"〜を強化する",ex:"Regular practice will ( ) your speaking skills."},
+  {e:"similarly",j:"同様に",ex:"( ), the second group showed significant improvement."},
+  {e:"opposite",j:"反対の",ex:"They live on ( ) sides of the street."},
+  {e:"pronunciation",j:"発音",ex:"Her ( ) is excellent for a non-native speaker."},
+  {e:"invention",j:"発明",ex:"The printing press was one of history's greatest ( ).",a:"inventions"},
+  {e:"reversed",j:"逆にする、逆の",ex:"The decision was ( ) after new evidence emerged."},
+  {e:"commute",j:"通勤する",ex:"He used to ( ) to work by train every day."},
+  {e:"appeal",j:"訴える、魅力",ex:"The project seemed to ( ) to students of all ages."},
+  {e:"qualify",j:"資格を得る",ex:"You need to pass two exams to ( ) for the position."},
+  {e:"incident",j:"出来事、事件",ex:"The ( ) was reported to the police immediately."},
+  {e:"market",j:"市場",ex:"The company is expanding into new ( )."},
+  {e:"maximum",j:"最大の",ex:"The ( ) speed allowed on this road is sixty kilometers per hour."},
+  {e:"yell",j:"叫ぶ",ex:"She began to ( ) at the top of her voice to get their attention."},
+  {e:"sneeze",j:"くしゃみをする",ex:"He started to ( ) loudly and everyone turned to look."},
+  {e:"wipe",j:"〜を拭く",ex:"Please ( ) the table clean after you eat."},
+  {e:"twist",j:"〜をねじる",ex:"She seemed to ( ) her ankle while running and had to stop."},
+  {e:"murder",j:"殺人",ex:"He was charged with ( ) and sentenced to life in prison."},
+  {e:"impose",j:"〜を課す",ex:"The government decided to ( ) new restrictions on imports."},
+  {e:"parliament",j:"議会",ex:"The bill was passed by ( ) last week."},
+  {e:"glance",j:"〜をちらっと見る",ex:"She happened to ( ) at her watch and realized she was late."},
+  {e:"aid",j:"援助、〜を助ける",ex:"The country received international ( ) after the disaster."},
+  {e:"forced",j:"〜を強制する",ex:"She was ( ) to cancel her trip due to illness."},
+  {e:"role",j:"役割",ex:"Everyone has a ( ) to play in tackling climate change."},
+  {e:"superior",j:"優れた",ex:"Her work is clearly ( ) to that of her colleagues."},
+  {e:"knowledge",j:"知識",ex:"She has an impressive ( ) of history."},
+  {e:"appearance",j:"外見、出現",ex:"First ( ) can be deceiving."},
+  {e:"incredible",j:"信じられない",ex:"The view from the summit was ( )."},
+  {e:"article",j:"記事、論文",ex:"She wrote an ( ) for the school newspaper."},
+  {e:"ancestor",j:"先祖",ex:"She traced her ( ) back to the seventeenth century."},
+  {e:"bend",j:"〜を曲げる",ex:"Be careful not to ( ) the pages of the book."},
+  {e:"occur",j:"起こる",ex:"When did the accident ( )?"},
+  {e:"objections",j:"異議（複数）",ex:"He raised several ( ) to the proposal."},
+  {e:"lazy",j:"怠惰な",ex:"He was too ( ) to prepare for the exam properly."},
+  {e:"outstanding",j:"傑出した",ex:"She received an award for ( ) academic performance."},
+  {e:"construct",j:"〜を建設する",ex:"They plan to ( ) a new bridge across the river."},
+  {e:"adequate",j:"十分な、適切な",ex:"Make sure you have ( ) supplies for the journey."},
+  {e:"instead of",j:"〜の代わりに",ex:"She had tea ( ) coffee for a change."},
+  {e:"mildly",j:"穏やかに",ex:"He was only ( ) interested in the proposal."},
+  {e:"wealthy",j:"裕福な",ex:"He comes from a very ( ) family."},
+  {e:"stranger",j:"見知らぬ人",ex:"Never accept food from a ( )."},
+  {e:"prove",j:"〜を証明する",ex:"The experiment seemed to ( ) that the theory was correct."},
+  {e:"insurance",j:"保険",ex:"It's essential to have travel ( ) when going abroad."},
+  {e:"generation",j:"世代",ex:"Each ( ) faces its own unique challenges."},
+  {e:"conclude",j:"〜を結論付ける",ex:"The report seemed to ( ) that more investment is needed."},
+  {e:"violence",j:"暴力",ex:"The government pledged to tackle street ( )."},
+  {e:"irritate",j:"〜をイライラさせる",ex:"Loud chewing really ( ) me."},
+  {e:"maintain",j:"〜を維持する",ex:"It's important to ( ) a healthy diet."},
+  {e:"favor",j:"好意、〜を好む",ex:"Can I ask you a ( )—could you water my plants?"},
+  {e:"differ",j:"異なる",ex:"Opinions ( ) widely on this issue."},
+  {e:"though",j:"〜にもかかわらず",ex:"It was cold, ( ), they went for a walk."},
+  {e:"limb",j:"手足、枝",ex:"He injured his ( ) in the accident."},
+  {e:"eventually",j:"最終的に",ex:"She ( ) became the head of the department."},
+  {e:"suggest",j:"〜を提案する",ex:"The doctor seemed to ( ) that she rest for a few days."},
+  {e:"capture",j:"〜を捉える",ex:"The photograph seemed to ( ) the beauty of the landscape."},
+  {e:"psychology",j:"心理学",ex:"She is studying ( ) at the local university."},
+  {e:"export",j:"〜を輸出する",ex:"The country tends to ( ) large quantities of coffee every year."},
+  {e:"spilled",j:"〜をこぼす",ex:"He accidentally ( ) his drink on the carpet."},
+  {e:"identity",j:"身元、アイデンティティ",ex:"She had to show her ( ) card at the border."},
+  {e:"participate",j:"参加する",ex:"All staff are encouraged to ( ) in the team-building activities."},
+  {e:"cough",j:"咳をする",ex:"He began to ( ) and couldn't stop."},
+  {e:"include",j:"〜を含む",ex:"The price was said to ( ) breakfast and dinner."},
+  {e:"sincerely",j:"誠実に",ex:"I ( ) apologize for the trouble caused."},
+  {e:"improvement",j:"改善",ex:"There has been a clear ( ) in air quality."},
+  {e:"crime",j:"犯罪",ex:"The rate of ( ) in the area has fallen significantly."},
+  {e:"proposal",j:"提案",ex:"Her ( ) was accepted by the entire committee."},
+  {e:"confess",j:"〜を告白する",ex:"She decided to ( ) that she had forgotten the deadline."},
+  {e:"credit",j:"信用",ex:"She deserves a lot of ( ) for the project's success."},
+  {e:"translation",j:"翻訳",ex:"The ( ) of the document took several hours."},
+  {e:"disadvantage",j:"不利",ex:"One ( ) of living alone is that you have to cook for yourself."},
+  {e:"objectively",j:"客観的に",ex:"Try to ( ) assess the situation before making a decision."},
+  {e:"consumption",j:"消費",ex:"Energy ( ) has increased over the past decade."},
+  {e:"innocently",j:"無邪気に",ex:"The child looked at her ( ) and smiled."},
+  {e:"researcher",j:"研究者",ex:"The ( ) spent three years collecting data."},
+  {e:"location",j:"場所",ex:"The hotel's ( ) is perfect—right next to the beach."},
+  {e:"oxygen",j:"酸素",ex:"Trees absorb carbon dioxide and release ( ) into the air."},
+  {e:"neglect",j:"〜を怠る",ex:"Don't ( ) your health—see a doctor regularly."},
+  {e:"survive",j:"生き残る",ex:"Several species struggle to ( ) habitat loss."},
+  {e:"desert",j:"砂漠、捨てる",ex:"The Sahara is the world's largest hot ( )."},
+  {e:"donation",j:"寄付",ex:"The charity relies on public ( ) to fund its work."},
+  {e:"exhibiting",j:"〜を展示する",ex:"The gallery is ( ) works by local artists this month."},
+  {e:"principal",j:"校長、主要な",ex:"The ( ) welcomed all new students at the entrance ceremony."},
+  {e:"product",j:"製品",ex:"The company is proud of the quality of its ( )."},
+  {e:"formal",j:"正式な",ex:"The occasion requires ( ) clothing."},
+  {e:"persuasion",j:"説得",ex:"After much ( ), he agreed to try the new food."},
+  {e:"migrate",j:"移住する、渡る",ex:"Many birds ( ) south for the winter."},
+  {e:"logical",j:"論理的な",ex:"She presented a very ( ) argument."},
+  {e:"interpreted",j:"〜を解釈する",ex:"The results can be ( ) in several ways."},
+  {e:"climb",j:"登る",ex:"It took three hours to ( ) to the summit."},
+  {e:"laundry",j:"洗濯",ex:"I need to do the ( ) before the weekend."},
+  {e:"mummy",j:"ミイラ",ex:"The ( ) was discovered in an ancient Egyptian tomb."},
+  {e:"liquid",j:"液体",ex:"Pour the ( ) slowly into the container."},
+  {e:"combine",j:"〜を組み合わせる",ex:"( ) the flour and butter to make the pastry."},
+  {e:"imply",j:"〜を暗示する",ex:"His tone seemed to ( ) that he was unhappy with the plan."},
+  {e:"ridiculous",j:"ばかげた",ex:"That idea is absolutely ( )."},
+  {e:"ignore",j:"〜を無視する",ex:"She chose to ( ) the rude comment and moved on."},
+  {e:"indeed",j:"確かに、実際に",ex:"The results were ( ) very encouraging."},
+  {e:"fossil",j:"化石",ex:"Scientists found a ( ) of an ancient sea creature."},
+  {e:"precise",j:"正確な",ex:"Please give me the ( ) time the event starts."},
+  {e:"argument",j:"議論、口論",ex:"They had a heated ( ) about the new policy."},
+  {e:"terribly",j:"ひどく",ex:"I feel ( ) sorry about the misunderstanding."},
+  {e:"astonish",j:"〜を驚かせる",ex:"The magician's tricks ( ) the audience."},
+  {e:"divide",j:"〜を分ける",ex:"The teacher decided to ( ) the class into four groups."},
+  {e:"describe",j:"〜を描写する",ex:"Can you ( ) what the suspect looked like?"},
+  {e:"overcome",j:"〜を克服する",ex:"She managed to ( ) her fear of public speaking with practice."},
+  {e:"inspire",j:"〜を鼓舞する",ex:"His story ( ) many young people to follow their dreams."},
+  {e:"escape",j:"逃げる",ex:"The prisoner managed to ( ) from jail."},
+  {e:"genuine",j:"本物の",ex:"His concern for the environment was ( )."},
+  {e:"island",j:"島",ex:"The ( ) is famous for its crystal-clear water."},
+  {e:"properties",j:"財産、不動産（複数）",ex:"He owns several ( ) in the city center."},
+  {e:"masterpiece",j:"傑作",ex:"The painting is widely considered a ( ) of modern art."},
+  {e:"admission",j:"入場、入学",ex:"( ) to the museum is free for children under twelve."},
+  {e:"retire",j:"退職する",ex:"She plans to ( ) at sixty and travel the world."},
+  {e:"threat",j:"脅威",ex:"Climate change poses a serious ( ) to biodiversity."},
+  {e:"tropical",j:"熱帯の",ex:"The island enjoys a warm ( ) climate year-round."},
+  {e:"vital",j:"不可欠な",ex:"Water is ( ) for all forms of life."},
+  {e:"altogether",j:"全部で、全体として",ex:"The trip cost ( ) about two thousand dollars."},
+  {e:"quantity",j:"量",ex:"We need a large ( ) of flour to bake all these cakes."},
+  {e:"insist",j:"〜と主張する",ex:"She ( ) that she had never met the man before."},
+  {e:"conversation",j:"会話",ex:"They had a long ( ) about their future plans."},
+  {e:"ordinary",j:"普通の",ex:"It seemed like just an ( ) day until the fire alarm went off."},
+  {e:"expensive",j:"高価な",ex:"The most ( ) option isn't always the best choice."},
+  {e:"concentration",j:"集中力",ex:"Meditation is said to improve ( )."},
+  {e:"advertisement",j:"広告",ex:"The company spent millions on ( ) last year."},
+  {e:"debt",j:"借金",ex:"It took years to pay off all his ( )."},
+  {e:"investigate",j:"〜を調査する",ex:"The police began to ( ) the crime scene."},
+  {e:"description",j:"描写、説明",ex:"He gave a detailed ( ) of what he had seen."},
+  {e:"bother",j:"〜を悩ませる",ex:"Don't ( ) her—she's trying to concentrate."},
+  {e:"punishment",j:"罰",ex:"The ( ) for speeding is a heavy fine."},
+  {e:"propose",j:"〜を提案する",ex:"She decided to ( ) a new approach to solving the problem."},
+  {e:"intense",j:"激しい",ex:"The competition was extremely ( )."},
+  {e:"curiosity",j:"好奇心",ex:"Cats are known for their ( )."},
+  {e:"organization",j:"組織",ex:"She volunteers for a local environmental ( )."},
+  {e:"immigration",j:"入国管理、移民",ex:"( ) procedures at the airport took over an hour."},
+  {e:"convince",j:"〜を説得する",ex:"She tried to ( ) him to see a doctor."},
+  {e:"declare",j:"〜を宣言する",ex:"The president decided to ( ) a state of emergency."},
+  {e:"make up",j:"〜を構成する",ex:"Women ( ) over half of the workforce."},
+  {e:"affection",j:"愛情",ex:"She showed great ( ) toward her younger siblings."},
+  {e:"stimulate",j:"〜を刺激する",ex:"Good teaching can ( ) a love of learning."},
+  {e:"praise",j:"〜を称える",ex:"The manager decided to ( ) the team for their excellent work."},
+  {e:"relieve",j:"〜を和らげる",ex:"This medicine will ( ) the pain."},
+  {e:"seek",j:"〜を求める",ex:"He decided to ( ) advice from experts before deciding."},
+  {e:"intervention",j:"介入",ex:"Early ( ) is key to treating the condition successfully."},
+  {e:"swear",j:"誓う",ex:"She promised to ( ) to keep the secret."},
+  {e:"responsibility",j:"責任",ex:"It is everyone's ( ) to protect the environment."},
+  {e:"recover",j:"回復する",ex:"She seemed to ( ) quickly from the illness."},
+  {e:"reject",j:"〜を拒否する",ex:"The committee decided to ( ) the proposal without discussion."},
+  {e:"distinguish",j:"〜を区別する",ex:"It can be hard to ( ) between the two types."},
+  {e:"warn",j:"〜に警告する",ex:"The doctor seemed to ( ) him to avoid strenuous activity."},
+  {e:"numerous",j:"多数の",ex:"There are ( ) reasons why learning English is important."},
+  {e:"ensure",j:"〜を確実にする",ex:"Please ( ) all windows are closed before you leave."},
+  {e:"commodity",j:"商品",ex:"Oil is one of the world's most valuable ( )."},
+  {e:"manipulate",j:"〜を操る",ex:"He was accused of trying to ( ) the election results."},
+  {e:"sue",j:"〜を訴える",ex:"She decided to ( ) the company for negligence."},
+  {e:"extract",j:"〜を取り出す",ex:"Scientists ( ) DNA from the ancient fossil."},
+  {e:"indigenous",j:"先住民の",ex:"The ( ) communities have lived in this region for centuries."},
+  {e:"provoke",j:"〜を挑発する",ex:"His comments seemed to ( ) a strong reaction from the audience."},
+  {e:"convicted",j:"〜に有罪判決を下す",ex:"He was ( ) of fraud and sentenced to prison."},
+  {e:"fatigue",j:"疲労",ex:"After the long journey, everyone was overcome with ( )."},
+  {e:"precede",j:"〜に先立つ",ex:"A warning signal should always ( ) the alarm."},
+  {e:"decent",j:"きちんとした",ex:"She earns a ( ) salary and lives comfortably."},
+  {e:"utter",j:"まったくの",ex:"That is ( ) nonsense."},
+  {e:"stern",j:"厳しい",ex:"The teacher gave a ( ) look to the misbehaving students."},
+  {e:"breed",j:"〜を繁殖させる",ex:"The farm tends to ( ) several varieties of cattle."},
+  {e:"forecast",j:"予報",ex:"The weather ( ) predicted heavy snow overnight."},
+  {e:"requires",j:"〜を必要とする",ex:"This position ( ) at least five years of experience."},
+  {e:"architect",j:"建築家",ex:"The famous ( ) designed several iconic buildings in the city."},
+  {e:"lessen",j:"〜を減らす",ex:"Exercise can help ( ) feelings of anxiety."},
+  {e:"addicted",j:"中毒になった",ex:"He became ( ) to social media and checked it constantly."},
+  {e:"accommodate",j:"〜を収容する",ex:"The stadium can ( ) up to eighty thousand spectators."},
+  {e:"obscure",j:"曖昧な、知られていない",ex:"The reference was too ( ) for most readers."},
+  {e:"resign",j:"辞任する",ex:"The CEO decided to ( ) after the financial scandal."},
+  {e:"grocery",j:"食料品",ex:"She stopped at the ( ) store on her way home from work."},
+  {e:"transaction",j:"取引",ex:"All ( ) are recorded automatically by the system."},
+  {e:"withstand",j:"〜に耐える",ex:"The building was designed to ( ) strong earthquakes."},
+  {e:"sanitation",j:"衛生",ex:"Adequate ( ) is crucial to prevent the spread of disease."},
+  {e:"conceal",j:"〜を隠す",ex:"He tried to ( ) the truth, but it was eventually discovered."},
+  {e:"retail",j:"小売り",ex:"The ( ) price is higher than the wholesale price."},
+  {e:"isolation",j:"孤立",ex:"Long periods of ( ) can have a negative effect on mental health."},
+  {e:"prejudice",j:"偏見",ex:"She faced ( ) due to her background."},
+  {e:"souvenir",j:"土産",ex:"She bought a small ( ) to remind her of the trip."},
+  {e:"supervisor",j:"監督者、上司",ex:"She reported the issue to her ( ) immediately."},
+  {e:"attribute",j:"〜を〜のせいにする",ex:"He tended to ( ) his success to years of hard work."},
+  {e:"supplement",j:"補充する、サプリメント",ex:"He takes vitamin ( ) every morning."},
+  {e:"drought",j:"干ばつ",ex:"The region suffered a severe ( ) that damaged crops."},
+  {e:"penetrate",j:"〜に浸透する",ex:"The sunlight seemed to ( ) through the leaves of the trees."},
+  {e:"conform",j:"従う",ex:"Students are expected to ( ) to school rules."},
+  {e:"scarce",j:"乏しい",ex:"Clean water is ( ) in many parts of the world."},
+  {e:"trivial",j:"些細な",ex:"Don't argue over such ( ) matters."},
+  {e:"thorough",j:"徹底的な",ex:"The police conducted a ( ) investigation."},
+  {e:"predator",j:"捕食動物",ex:"Lions are powerful ( ) that hunt in groups."},
+  {e:"beverage",j:"飲料",ex:"Alcoholic ( ) are not permitted on the premises.",a:"beverages"},
+  {e:"emperor",j:"皇帝",ex:"The ( ) gave a speech to mark the anniversary."},
+  {e:"soar",j:"急上昇する",ex:"House prices have ( ) in major cities recently."},
+  {e:"famine",j:"飢饉",ex:"The ( ) left millions without food across the region."},
+  {e:"extinct",j:"絶滅した",ex:"The dodo has been ( ) for hundreds of years."},
+  {e:"conquer",j:"〜を征服する",ex:"He managed to ( ) his fear of public speaking by practicing every day."},
+  {e:"converse",j:"会話する",ex:"She seemed to ( ) fluently in three languages."},
+  {e:"revise",j:"〜を改訂する、復習する",ex:"She spent the weekend ( ) for her exams."},
+  {e:"optimistic",j:"楽観的な",ex:"She remained ( ) despite the many setbacks."},
+  {e:"expire",j:"期限が切れる",ex:"Your visa will ( ) at the end of the month—renew it now."},
+  {e:"hierarchy",j:"階層制度",ex:"The company has a strict ( ) with many levels of management."},
+  {e:"erosion",j:"浸食",ex:"Soil ( ) is a serious problem in many agricultural areas."},
+  {e:"evoke",j:"〜を呼び起こす",ex:"The old photographs ( ) strong memories of her childhood."},
+  {e:"vanish",j:"消える",ex:"The magician made the coin ( ) before their eyes."},
+  {e:"medieval",j:"中世の",ex:"The castle dates back to ( ) times."},
+  {e:"savage",j:"野蛮な",ex:"The attack was described as particularly ( )."},
+  {e:"bleed",j:"出血する",ex:"The cut was so deep that it would ( ) for a long time."},
+  {e:"apologize",j:"謝る",ex:"She decided to ( ) for arriving late."},
+  {e:"utilize",j:"〜を利用する",ex:"Try to ( ) every resource available to you."},
+  {e:"fame",j:"名声",ex:"She achieved international ( ) with her debut album."},
+  {e:"starve",j:"飢える",ex:"Thousands of people ( ) during the conflict."},
+  {e:"organ",j:"器官",ex:"The heart is the most important ( ) in the body."},
+  {e:"discrimination",j:"差別",ex:"( ) based on race is illegal in many countries."},
+  {e:"bully",j:"いじめる",ex:"It is wrong to ( ) others because of their differences."},
+  {e:"ambiguous",j:"曖昧な",ex:"The instructions were ( ) and caused confusion."},
+  {e:"integrate",j:"〜を統合する",ex:"The software will ( ) all your data into one platform."},
+  {e:"particle",j:"粒子",ex:"Scientists are studying the behavior of tiny ( )."},
+  {e:"magnificent",j:"壮大な",ex:"They had a ( ) view from the top of the building."},
+  {e:"pastime",j:"趣味",ex:"Reading is a popular ( ) among people of all ages."},
+  {e:"enrich",j:"〜を豊かにする",ex:"Travel can ( ) your understanding of other cultures."},
+  {e:"refund",j:"返金",ex:"She requested a ( ) because the product was damaged."},
+  {e:"germ",j:"病原菌",ex:"Wash your hands to prevent the spread of ( )."},
+  {e:"rumor",j:"うわさ",ex:"Don't believe the ( )—it's probably not true."},
+  {e:"descend",j:"下る",ex:"The hikers began to ( ) the mountain as the sun began to set."},
+  {e:"endowed",j:"〜に与える",ex:"She was ( ) with a remarkable ability to remember faces."},
+  {e:"compile",j:"〜をまとめる",ex:"He spent months ( ) data for his research paper."},
+  {e:"compassion",j:"思いやり",ex:"She showed great ( ) toward the people affected by the disaster."},
+  {e:"sorrow",j:"悲しみ",ex:"The loss of her friend filled her with deep ( )."},
+  {e:"approve",j:"承認する",ex:"The committee decided to ( ) the new budget."},
+  {e:"undertake",j:"〜に着手する",ex:"She agreed to ( ) the challenging task with enthusiasm."},
+  {e:"compliment",j:"〜を褒める",ex:"He decided to ( ) her on the excellent presentation."},
+  {e:"overwhelmed",j:"〜を圧倒する",ex:"She was ( ) by the amount of work she had to complete."},
+  {e:"awkward",j:"ぎこちない",ex:"There was an ( ) silence after his unexpected comment."},
+  {e:"tame",j:"飼いならされた",ex:"The animal was very ( ) and friendly with visitors."},
+  {e:"appropriate",j:"適切な",ex:"Please choose ( ) clothing for the formal dinner."},
+  {e:"adolescent",j:"青年期の",ex:"( ) years can be both exciting and challenging."},
+  {e:"scholarship",j:"奨学金",ex:"She received a ( ) to study at the university."},
+  {e:"emotion",j:"感情",ex:"Strong ( ) can sometimes affect the quality of your decisions."},
+  {e:"emergency",j:"緊急事態",ex:"In case of ( ), dial 119 immediately."},
+  {e:"spouse",j:"配偶者",ex:"She moved to a new city with her ( ) and two children."},
+  {e:"shrink",j:"縮む",ex:"The market has ( ) considerably over the past year."},
+  {e:"molecule",j:"分子",ex:"Water consists of two hydrogen and one oxygen ( )."},
+  {e:"document",j:"文書",ex:"Keep all important ( ) in a safe and secure place."},
+  {e:"assemble",j:"〜を組み立てる",ex:"It took two hours to ( ) the flat-pack wardrobe."},
+  {e:"injection",j:"注射",ex:"The nurse gave him an ( ) in his left arm."},
+  {e:"endanger",j:"〜を危険にさらす",ex:"Development threatens to ( ) the local wildlife."},
+  {e:"suspended",j:"〜を一時停止する",ex:"The service was ( ) due to maintenance."},
+  {e:"retrieve",j:"〜を取り戻す",ex:"She managed to ( ) her bag from the lost property office."},
+  {e:"tidy",j:"整頓する、きちんとした",ex:"Please ( ) your desk before you leave."},
+  {e:"reveal",j:"〜を明らかにする",ex:"The investigation seemed to ( ) the true cause of the accident."},
+  {e:"afterwards",j:"その後",ex:"We had dinner and ( ) went for a walk along the river."},
+  {e:"abolished",j:"〜を廃止する",ex:"The law was finally ( ) after years of campaigning."},
+  {e:"modest",j:"謙虚な、控えめな",ex:"Despite her success, she remained ( )."},
+  {e:"bloom",j:"咲く",ex:"The cherry trees tend to ( ) beautifully every spring."},
+  {e:"assign",j:"〜を割り当てる",ex:"The manager decided to ( ) specific tasks to each team member."},
+  {e:"architecture",j:"建築（様式）",ex:"The city is famous for its stunning ( )."},
+  {e:"fragment",j:"断片",ex:"Archaeologists found ( ) of ancient pottery at the site."},
+  {e:"prey",j:"獲物",ex:"The eagle spotted its ( ) from high in the sky."},
+  {e:"devastate",j:"〜に大きな打撃を与える",ex:"The storm seemed to ( ) the coastal towns."},
+  {e:"nutrition",j:"栄養",ex:"Good ( ) is essential for healthy child development."},
+  {e:"leak",j:"漏れる",ex:"The pipe seemed to ( ) and caused serious water damage."},
+  {e:"exert",j:"〜を発揮する、行使する",ex:"She had to ( ) great effort to complete the project on time."},
+  {e:"toxic",j:"有毒な",ex:"The factory was releasing ( ) chemicals into the river."},
+  {e:"acute",j:"急性の、鋭い",ex:"She experienced an ( ) pain in her chest."},
+  {e:"equality",j:"平等",ex:"She devoted her career to fighting for gender ( )."},
+  {e:"organic",j:"有機の",ex:"Many people now prefer to buy ( ) fruit and vegetables."},
+  {e:"sincere",j:"誠実な",ex:"His apology seemed ( ) and heartfelt."},
+  {e:"vow",j:"誓う、誓い",ex:"He decided to ( ) to work harder and never make the same mistake again."},
+  {e:"intuition",j:"直感",ex:"Her ( ) told her that something was wrong."},
+  {e:"tissue",j:"組織、ティッシュ",ex:"Could you pass me a ( )? I have a cold."},
+  {e:"layers",j:"層（複数）",ex:"The Earth is made up of several ( ) of rock."},
+  {e:"explode",j:"爆発する",ex:"The volcano seemed to ( ) unexpectedly in the early hours."},
+  {e:"irrigation",j:"灌漑",ex:"( ) systems allow farmers to grow crops in dry regions."},
+  {e:"altitude",j:"高度、標高",ex:"The plane flew at an ( ) of ten thousand meters."},
+  {e:"humid",j:"湿気の多い",ex:"The weather in August is very hot and ( )."},
+];
+
+// ===== STATE =====
+const LESSON_SIZE = 20;
+let mode = 'mix';
+let qNum = 0;
+let correct = 0;
+let wrong = 0;
+let streak = 0;
+let bestStreak = 0;
+let idiomCorrect = 0;
+let vocabCorrect = 0;
+let idiomTotal = 0;
+let vocabTotal = 0;
+let answered = false;
+let currentQ = null;
+let lessonNum = 1;
+let lessonCorrect = 0;
+let lessonWrong = 0;
+let usedIdioms = [];
+let usedVocab = [];
+
+// Timer state
+let TIMER_SECONDS = 10;   // changeable by user
+let timerEnabled = true;  // false when set to "なし"
+let timerInterval = null;
+let timerLeft = TIMER_SECONDS;
+
+// ===== REVIEW STATE =====
+// reviewList: Map of item.e -> {item, type, missCount}
+let reviewList = new Map();
+let isReviewMode = false;
+let reviewPool = [];
+let usedReview = [];
+
+// ===== REVIEW: persistence via localStorage =====
+function saveReview() {
+  try {
+    const obj = {};
+    reviewList.forEach((v, k) => { obj[k] = v; });
+    localStorage.setItem('eiken2_review', JSON.stringify(obj));
+  } catch(e) {}
+}
+function loadReview() {
+  try {
+    const raw = localStorage.getItem('eiken2_review');
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    Object.entries(obj).forEach(([k, v]) => reviewList.set(k, v));
+    updateReviewUI();
+  } catch(e) {}
+}
+
+function addToReview(item, type) {
+  const key = item.e;
+  if (reviewList.has(key)) {
+    reviewList.get(key).missCount++;
+  } else {
+    reviewList.set(key, { item, type, missCount: 1 });
+  }
+  saveReview();
+  updateReviewUI();
+}
+
+function removeFromReview(key) {
+  reviewList.delete(key);
+  saveReview();
+  updateReviewUI();
+  renderReviewList();
+}
+
+function clearReviewList() {
+  if (!confirm('間違いリストをすべて削除しますか？')) return;
+  reviewList.clear();
+  saveReview();
+  updateReviewUI();
+  renderReviewList();
+  showToast('🗑 リストをクリアしました');
+}
+
+function updateReviewUI() {
+  const count = reviewList.size;
+  // Tab badge
+  const badge = document.getElementById('reviewTabCount');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.style.display = 'inline';
+  } else {
+    badge.style.display = 'none';
+  }
+  // Panel count
+  const pc = document.getElementById('reviewPanelCount');
+  if (pc) pc.textContent = count;
+  // Start review btn
+  const btn = document.getElementById('startReviewBtn');
+  if (btn) btn.disabled = count === 0;
+}
+
+function renderReviewList() {
+  const list = document.getElementById('reviewList');
+  if (!list) return;
+  if (reviewList.size === 0) {
+    list.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">間違えた問題はまだありません 🎉</div>';
+    return;
+  }
+  // Sort by missCount desc
+  const entries = [...reviewList.entries()].sort((a,b) => b[1].missCount - a[1].missCount);
+  list.innerHTML = entries.map(([key, {item, type, missCount}]) => `
+    <div class="review-item">
+      <div class="review-item-left">
+        <div class="review-item-word">${item.a || item.e}</div>
+        <div class="review-item-meaning">${item.j}</div>
+        <div class="review-item-ex">${item.ex.replace('( )', `[${item.e}]`)}</div>
+      </div>
+      <div class="review-item-meta">
+        <span class="review-item-badge ${type}">${type === 'idiom' ? 'イディオム' : '単語'}</span>
+        <span class="miss-count">✕ ${missCount}回</span>
+        <button class="remove-btn" onclick="removeFromReview('${key.replace(/'/g,"\'")}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== REVIEW PANEL OPEN/CLOSE =====
+function showReviewPanel() {
+  document.getElementById('mapPanel').classList.remove('show');
+  document.getElementById('mapTab').classList.remove('active');
+
+  stopTimer();
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('reviewTab').classList.add('active');
+  document.getElementById('reviewPanel').classList.add('show');
+  renderReviewList();
+  updateReviewUI();
+}
+
+function closeReviewPanel() {
+  document.getElementById('reviewPanel').classList.remove('show');
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['mix','idiom','vocab','review'][i] === mode ||
+      (mode !== 'review' && ['mix','idiom','vocab'][i] === mode));
+  });
+  // Restore active tab highlight
+  const modeIdx = {mix:0, idiom:1, vocab:2}[mode] ?? 0;
+  document.querySelectorAll('.tab')[modeIdx].classList.add('active');
+}
+
+// ===== REVIEW MODE =====
+function startReviewMode() {
+  if (reviewList.size === 0) { showToast('間違えた問題がありません'); return; }
+  isReviewMode = true;
+  reviewPool = [...reviewList.values()].map(v => v.item);
+  usedReview = [];
+  qNum = 0; correct = 0; wrong = 0; streak = 0;
+  updateStats();
+  closeReviewPanel();
+  document.getElementById('lessonComplete').classList.remove('show');
+  document.getElementById('mainArea').style.display = '';
+  document.querySelectorAll('.nav-row').forEach(el => el.style.display = '');
+  document.getElementById('reviewBanner').classList.add('show');
+  generateQuestion();
+}
+
+function exitReviewMode() {
+  isReviewMode = false;
+  reviewPool = [];
+  usedReview = [];
+  // Keep lesson state — return to current lesson position
+  qNum = 0; correct = 0; wrong = 0; streak = 0;
+  lessonCorrect = 0; lessonWrong = 0;
+  document.getElementById('reviewBanner').classList.remove('show');
+  document.getElementById('lessonComplete').classList.remove('show');
+  document.getElementById('mainArea').style.display = '';
+  document.querySelectorAll('.nav-row').forEach(el => el.style.display = '');
+  updateStats();
+  generateQuestion();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ===== INIT =====
+function setMode(m) {
+  if (isReviewMode) exitReviewMode();
+  mode = m;
+  document.getElementById('reviewPanel').classList.remove('show');
+  document.getElementById('lessonComplete').classList.remove('show');
+  document.getElementById('mainArea').style.display = '';
+  document.querySelectorAll('.nav-row').forEach(el => el.style.display = '');
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['mix','idiom','vocab','review'][i] === m);
+  });
+  qNum = 0; correct = 0; wrong = 0; streak = 0;
+  lessonNum = 1; lessonCorrect = 0; lessonWrong = 0;
+  idiomCorrect = 0; vocabCorrect = 0; idiomTotal = 0; vocabTotal = 0;
+  usedIdioms = []; usedVocab = [];
+  updateStats();
+  generateQuestion();
+}
+
+function pickRandom(arr, used) {
+  if (used.length >= arr.length) used.length = 0;
+  let available = arr.filter((_,i) => !used.includes(i));
+  let idx = arr.indexOf(available[Math.floor(Math.random() * available.length)]);
+  used.push(idx);
+  return {item: arr[idx], idx};
+}
+
+function generateQuestion() {
+  stopTimer();
+  if (!isReviewMode && qNum >= LESSON_SIZE) {
+    showLessonComplete();
+    return;
+  }
+  answered = false;
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('skipBtn').disabled = false;
+  qNum++;
+
+  let item, type, pool;
+
+  if (isReviewMode) {
+    // Review mode: pick from wrong items
+    if (reviewPool.length === 0) {
+      showToast('復習リストが空になりました！');
+      exitReviewMode();
+      return;
+    }
+    if (usedReview.length >= reviewPool.length) usedReview = [];
+    let available = reviewPool.filter((_,i) => !usedReview.includes(i));
+    let ri = reviewPool.indexOf(available[Math.floor(Math.random() * available.length)]);
+    usedReview.push(ri);
+    item = reviewPool[ri];
+    type = reviewList.get(item.e)?.type || 'vocab';
+    pool = type === 'idiom' ? IDIOMS_EIKEN2 : VOCAB_EIKEN2;
+  } else {
+    if (mode === 'idiom') type = 'idiom';
+    else if (mode === 'vocab') type = 'vocab';
+    else type = Math.random() < 0.5 ? 'idiom' : 'vocab';
+    pool = type === 'idiom' ? IDIOMS_EIKEN2 : VOCAB_EIKEN2;
+    let used = type === 'idiom' ? usedIdioms : usedVocab;
+    let picked = pickRandom(pool, used);
+    item = picked.item;
+    if (type === 'idiom') idiomTotal++;
+    else vocabTotal++;
+  }
+
+  let display = item.ex.replace('( )', '<span class="blank">　　　　</span>');
+  let others = pool.filter(x => x.e !== item.e);
+  let wrongs = [];
+  while (wrongs.length < 3) {
+    let r = others[Math.floor(Math.random() * others.length)];
+    if (!wrongs.find(w => w.e === r.e)) wrongs.push(r);
+  }
+  let choices = [item, ...wrongs].sort(() => Math.random() - .5);
+  // Detect if blank is at sentence start
+  const sentenceStart = item.ex.trim().startsWith('( )');
+  currentQ = {item, choices, type, display, sentenceStart};
+  renderQuestion();
+}
+
+// ===== TIMER =====
+function setTimerSecs(secs) {
+  stopTimer();
+  // Update active button
+  [10, 15, 20, 0].forEach(v => {
+    const id = v === 0 ? 'tbtnOff' : `tbtn${v}`;
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', v === secs);
+  });
+
+  if (secs === 0) {
+    timerEnabled = false;
+    TIMER_SECONDS = 10; // fallback default
+    // Hide timer UI if visible
+    const tw = document.querySelector('.timer-wrap');
+    if (tw) tw.style.display = 'none';
+  } else {
+    timerEnabled = true;
+    TIMER_SECONDS = secs;
+    const tw = document.querySelector('.timer-wrap');
+    if (tw) tw.style.display = '';
+    // Restart timer for current question if mid-question
+    if (!answered && document.getElementById('timerCircle')) {
+      startTimer();
+    }
+  }
+}
+
+function startTimer() {
+  stopTimer();
+  if (!timerEnabled) return;
+
+  // Show timer UI
+  const tw = document.querySelector('.timer-wrap');
+  if (tw) tw.style.display = '';
+
+  timerLeft = TIMER_SECONDS;
+  updateTimerUI(timerLeft);
+
+  timerInterval = setInterval(() => {
+    timerLeft--;
+    updateTimerUI(timerLeft);
+
+    if (timerLeft <= 0) {
+      stopTimer();
+      timeUp();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function updateTimerUI(secs) {
+  const numEl = document.getElementById('timerNum');
+  const circleEl = document.getElementById('timerCircle');
+  const barEl = document.getElementById('timerBar');
+  if (!numEl) return;
+
+  const pct = secs / TIMER_SECONDS;
+  // Circle: circumference = 2π×18 ≈ 113
+  const circ = 113;
+  const offset = circ * (1 - pct);
+
+  numEl.textContent = secs;
+
+  // Color transitions: green→yellow→red
+  let color;
+  if (pct > 0.5) color = 'var(--accent)';       // green
+  else if (pct > 0.25) color = 'var(--warn)';    // yellow
+  else color = 'var(--danger)';                   // red
+
+  if (circleEl) {
+    circleEl.style.strokeDashoffset = offset;
+    circleEl.style.stroke = color;
+  }
+  if (barEl) {
+    barEl.style.width = (pct * 100) + '%';
+    barEl.style.background = color;
+  }
+  if (numEl) numEl.style.color = color;
+}
+
+function timeUp() {
+  if (answered) return;
+  answered = true;
+
+  // Count as wrong, add to review
+  const {item, type} = currentQ;
+  wrong++; lessonWrong++;
+  streak = 0;
+  addToReview(item, type);
+
+  // Highlight correct answer in red border, show it
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('choice' + i);
+    if (!btn) continue;
+    btn.disabled = true;
+    if (currentQ.choices[i].e === item.e) btn.classList.add('correct');
+  }
+
+  // Show explanation with time-up message
+  const exp = document.getElementById('explanation');
+  if (exp) {
+    exp.classList.add('show');
+    const {sentenceStart} = currentQ;
+    const ans = getLabel(item, sentenceStart);
+    exp.innerHTML = `
+      <div class="label" style="color:var(--warn);">⏰ 時間切れ！次の問題へ自動で進みます</div>
+      <div class="answer">${ans}</div>
+      <div class="meaning">意味：${item.j}</div>
+      <div class="example">例文：${item.ex.replace('( )', '<strong>' + ans + '</strong>')}</div>
+    `;
+  }
+
+  updateStats();
+
+  // Auto-advance after 1.5s
+  setTimeout(() => {
+    if (!timerInterval) generateQuestion();
+  }, 1500);
+}
+
+// Helper: get display label for a choice (use a: if present, else e:)
+// capitalize: when the answer appears at sentence start
+function getLabel(item, capitalize) {
+  const label = item.a || item.e;
+  if (capitalize && label.length > 0) {
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+  return label;
+}
+
+function renderQuestion() {
+  const {item, choices, type, display, sentenceStart} = currentQ;
+  const area = document.getElementById('mainArea');
+
+  area.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div class="badge ${type}" style="margin-bottom:0;">${type === 'idiom' ? '📚 イディオム' : '📖 単語'}</div>
+        <div class="timer-wrap" style="margin-bottom:0;flex:1;margin-left:12px;">
+          <div class="timer-ring">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle class="bg" cx="22" cy="22" r="18"/>
+              <circle class="progress" id="timerCircle" cx="22" cy="22" r="18"/>
+            </svg>
+            <span class="timer-num" id="timerNum">10</span>
+          </div>
+          <div class="timer-bar-wrap">
+            <div class="timer-bar" id="timerBar"></div>
+          </div>
+        </div>
+      </div>
+      <div class="question-text">${display}</div>
+      <div class="question-note">空欄に入る最も適切なものを1〜4から選びなさい。</div>
+      <div class="choices" id="choices">
+        ${choices.map((c,i) => `
+          <button class="choice-btn" onclick="selectAnswer(${i})" id="choice${i}">
+            <span class="num">${i+1}</span>
+            ${getLabel(c, sentenceStart)}
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+  `;
+
+  if (isReviewMode) {
+    document.getElementById('progressLabel').textContent = `復習 Q${qNum} / ${reviewPool.length}問`;
+  } else {
+    document.getElementById('progressLabel').textContent =
+      `レッスン${lessonNum}  ·  ${qNum} / ${LESSON_SIZE}問`;
+  }
+  const pct = isReviewMode
+    ? Math.round(qNum / Math.max(reviewPool.length,1) * 100)
+    : Math.round(qNum / LESSON_SIZE * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // Show/hide timer UI based on setting
+  setTimeout(() => {
+    const tw = document.querySelector('.timer-wrap');
+    if (tw) tw.style.display = timerEnabled ? '' : 'none';
+    startTimer();
+  }, 50);
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  stopTimer();
+
+  const {item, choices, type} = currentQ;
+  const isCorrect = choices[idx].e === item.e;
+
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('choice' + i);
+    btn.disabled = true;
+    if (choices[i].e === item.e) btn.classList.add('correct');
+    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+  }
+
+  if (isCorrect) {
+    correct++; lessonCorrect++;
+    streak++;
+    if (type === 'idiom') idiomCorrect++;
+    else vocabCorrect++;
+    if (streak > bestStreak) bestStreak = streak;
+  } else {
+    wrong++; lessonWrong++;
+    streak = 0;
+    addToReview(item, type);
+  }
+
+  const exp = document.getElementById('explanation');
+  exp.classList.add('show');
+  const {sentenceStart} = currentQ;
+  const ans = getLabel(item, sentenceStart);
+  exp.innerHTML = `
+    <div class="label">${isCorrect ? '✅ 正解！' : '❌ 間違えた問題を復習リストに追加しました'}</div>
+    <div class="answer">${ans}</div>
+    <div class="meaning">意味：${item.j}</div>
+    <div class="example">例文：${item.ex.replace('( )', `<strong>${ans}</strong>`)}</div>
+    ${!isCorrect ? `<div style="margin-top:8px;font-size:12px;color:var(--muted);">❌ 復習リストに追加 — タブから確認・復習できます</div>` : ''}
+  `;
+
+  updateStats();
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('skipBtn').disabled = true;
+}
+
+function updateStats() {
+  const total = correct + wrong;
+  document.getElementById('totalCount').textContent =
+    isReviewMode ? qNum : `${qNum}/${LESSON_SIZE}`;
+  document.getElementById('correctCount').textContent = correct;
+  const acc = total > 0 ? Math.round(correct / total * 100) : '—';
+  document.getElementById('accuracy').textContent = total > 0 ? acc + '%' : '—';
+  document.getElementById('streak').textContent = streak;
+}
+
+// ===== LESSON FUNCTIONS =====
+function showLessonComplete() {
+  markLessonComplete(lessonNum);
+  stopTimer();
+  document.getElementById('mainArea').style.display = 'none';
+  document.querySelectorAll('.nav-row').forEach(el => el.style.display = 'none');
+  document.getElementById('lessonComplete').classList.add('show');
+
+  const total = lessonCorrect + lessonWrong;
+  const rate = total > 0 ? Math.round(lessonCorrect / total * 100) : 0;
+  const startQ = (lessonNum - 1) * LESSON_SIZE + 1;
+  const endQ = lessonNum * LESSON_SIZE;
+
+  document.getElementById('lcNum').textContent = `LESSON ${lessonNum}`;
+  document.getElementById('lcOk').textContent = lessonCorrect;
+  document.getElementById('lcNg').textContent = lessonWrong;
+  document.getElementById('lcRt').textContent = rate + '%';
+  document.getElementById('lcRange').innerHTML =
+    `出題範囲: <strong>全体の ${startQ}〜${endQ}問目</strong>`;
+
+  setTimeout(() => {
+    document.getElementById('lcFill').style.width = rate + '%';
+  }, 80);
+
+  const rc = reviewList.size;
+  document.getElementById('lcRevCount').textContent = rc > 0 ? `(${rc}問)` : '';
+
+  // Check if all items used up
+  const idiomsDone = usedIdioms.length >= IDIOMS_EIKEN2.length;
+  const vocabsDone = usedVocab.length >= VOCAB_EIKEN2.length;
+  const allDone = mode === 'idiom' ? idiomsDone
+                : mode === 'vocab' ? vocabsDone
+                : idiomsDone && vocabsDone;
+
+  const btn = document.getElementById('lcNextBtn');
+  if (allDone) {
+    btn.textContent = '全問完了！最初からやり直す 🔄';
+    btn.onclick = () => {
+      usedIdioms = []; usedVocab = [];
+      lessonNum = 1;
+      startNextLesson();
+    };
+  } else {
+    btn.textContent = `レッスン ${lessonNum + 1} へ →`;
+    btn.onclick = startNextLesson;
+  }
+}
+
+function startNextLesson() {
+  lessonNum++;
+  qNum = 0; correct = 0; wrong = 0; streak = 0;
+  lessonCorrect = 0; lessonWrong = 0;
+  idiomCorrect = 0; vocabCorrect = 0; idiomTotal = 0; vocabTotal = 0;
+  document.getElementById('lessonComplete').classList.remove('show');
+  document.getElementById('mainArea').style.display = '';
+  document.querySelectorAll('.nav-row').forEach(el => el.style.display = '');
+  updateStats();
+  generateQuestion();
+}
+
+function restartLesson() {
+  // Remove last lesson's questions from used arrays so they can repeat
+  const isIdiomOnly = mode === 'idiom';
+  const isVocabOnly = mode === 'vocab';
+  if (!isVocabOnly) usedIdioms = usedIdioms.slice(0, Math.max(0, usedIdioms.length - LESSON_SIZE));
+  if (!isIdiomOnly) usedVocab = usedVocab.slice(0, Math.max(0, usedVocab.length - LESSON_SIZE));
+  qNum = 0; correct = 0; wrong = 0; streak = 0;
+  lessonCorrect = 0; lessonWrong = 0;
+  idiomCorrect = 0; vocabCorrect = 0; idiomTotal = 0; vocabTotal = 0;
+  document.getElementById('lessonComplete').classList.remove('show');
+  document.getElementById('mainArea').style.display = '';
+  document.querySelectorAll('.nav-row').forEach(el => el.style.display = '');
+  updateStats();
+  generateQuestion();
+}
+
+
+// ===== LESSON MAP =====
+let completedLessons = new Set();
+const TOTAL_LESSONS = 75;
+
+function saveCompletedLessons() {
+  try {
+    localStorage.setItem('eiken2_completed', JSON.stringify([...completedLessons]));
+  } catch(e) {}
+}
+
+function loadCompletedLessons() {
+  try {
+    const raw = localStorage.getItem('eiken2_completed');
+    if (raw) completedLessons = new Set(JSON.parse(raw));
+  } catch(e) {}
+}
+
+function markLessonComplete(num) {
+  completedLessons.add(num);
+  saveCompletedLessons();
+  updateMapUI();
+}
+
+function showMapPanel() {
+  // 他タブを非アクティブに
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('mapTab').classList.add('active');
+  document.getElementById('reviewPanel').classList.remove('show');
+  document.getElementById('mapPanel').classList.add('show');
+  updateMapUI();
+}
+
+function closeMapPanel() {
+  document.getElementById('mapPanel').classList.remove('show');
+  document.getElementById('mapTab').classList.remove('active');
+}
+
+function updateMapUI() {
+  const done = completedLessons.size;
+  const left = TOTAL_LESSONS - done;
+  const pct = Math.round(done / TOTAL_LESSONS * 100);
+
+  document.getElementById('mapDone').textContent = done;
+  document.getElementById('mapLeft').textContent = left;
+  document.getElementById('mapPctLabel').textContent = pct + '% 完了';
+  document.getElementById('mapProgressFill').style.width = pct + '%';
+
+  // グリッド描画
+  const grid = document.getElementById('mapGrid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= TOTAL_LESSONS; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'map-cell';
+    cell.title = `レッスン ${i}`;
+
+    if (completedLessons.has(i)) {
+      cell.classList.add('done');
+      cell.innerHTML = `
+        <span class="cell-stamp">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l2.9 6.26L22 9.27l-5 5.14 1.18 7.24L12 18.3l-6.18 3.35L7 14.41 2 9.27l7.1-1.01L12 2z"
+              fill="#4ade80" stroke="#4ade80" stroke-width="0" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="cell-num">${i}</span>`;
+    } else if (i === lessonNum) {
+      cell.classList.add('current');
+      cell.innerHTML = `<span class="cell-num">${i} ▶</span>`;
+    } else {
+      cell.classList.add('locked');
+      cell.textContent = i;
+    }
+
+    // クリックで確認
+    cell.addEventListener('click', () => {
+      if (completedLessons.has(i)) {
+        showToast(`⭐ レッスン ${i} 完了済み！`);
+      } else if (i === lessonNum) {
+        closeMapPanel();
+        showToast(`レッスン ${i} に挑戦中！`);
+      }
+    });
+    grid.appendChild(cell);
+  }
+}
+
+// Start
+loadCompletedLessons();
+loadReview();
+generateQuestion();
+</script>
+</body>
+</html>
